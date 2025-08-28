@@ -1,4 +1,4 @@
-**/routeTree.gen.js
+**/routeTree.gen.[jt]s
 **/node_modules
 **/dist
 **/.DS_Store
