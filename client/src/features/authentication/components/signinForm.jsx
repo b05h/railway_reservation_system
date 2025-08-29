@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSignIn } from "../hooks/useSignIn";
 
 const signinSchema = z.object({
   email: z.email(),
@@ -8,16 +9,17 @@ const signinSchema = z.object({
 });
 
 export default function SigninForm() {
+  const signIn = useSignIn();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(signinSchema) });
 
-  const onSubmit = (data) => {
-    // TODO: call API to sign in
-    console.log(data);
+  const onSubmit = async (data) => {
+    await signIn.resolve(data);
   };
+
   return (
     <div className="card w-full max-w-md shadow-2xl bg-base-100">
       <div className="card-body">
@@ -32,6 +34,7 @@ export default function SigninForm() {
               type="email"
               placeholder="you@example.com"
               className="input input-bordered w-full"
+              disabled={signIn.isLoading}
               {...register("email")}
             />
             {errors.email && (
@@ -48,6 +51,7 @@ export default function SigninForm() {
               type="password"
               placeholder="********"
               className="input input-bordered w-full"
+              disabled={signIn.isLoading}
               {...register("password")}
             />
             {errors.password && (
@@ -62,10 +66,17 @@ export default function SigninForm() {
               </a>
             </label>
           </div>
+          {signIn.isError && (
+            <p className="label-text-alt text-error">{signIn.error.title}</p>
+          )}
 
           {/* Submit Button */}
           <div className="form-control mt-6">
-            <button type="submit" className="btn btn-primary w-full">
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={signIn.isLoading}
+            >
               Sign In
             </button>
           </div>

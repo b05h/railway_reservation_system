@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSignUp } from "../hooks/useSignUp";
 
 const signupSchema = z.object({
   name: z.string().min(3),
@@ -9,15 +10,15 @@ const signupSchema = z.object({
 });
 
 export default function SignupForm() {
+  const signUp = useSignUp();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = (data) => {
-    // TODO: call API to sign up
-    console.log(data);
+  const onSubmit = async (data) => {
+    await signUp.resolve(data);
   };
 
   return (
