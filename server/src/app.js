@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { authRoutes } from "./routes/index.js";
+import errorHandler from "./middleware/errorHandler.js";
+import responseTransformer from "./middleware/responseTransformer.js";
 
 export default function createApp(config) {
   const app = express();
@@ -18,6 +20,9 @@ export default function createApp(config) {
     }),
   );
 
+  // register response transformer middleware
+  app.use(responseTransformer);
+
   const api = express.Router();
 
   api.use("/auth", authRoutes);
@@ -26,6 +31,9 @@ export default function createApp(config) {
   });
 
   app.use("/api/v1", api);
+
+  // register global error handler middleware
+  app.use(errorHandler);
 
   return app;
 }
