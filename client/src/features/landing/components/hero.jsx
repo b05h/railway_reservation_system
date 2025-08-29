@@ -1,6 +1,8 @@
+import { Link } from "@tanstack/react-router";
+
 export default function Hero() {
   return (
-    <section className="hero bg-base-200 min-h-screen">
+    <section id="hero" className="hero bg-base-200 min-h-screen">
       <div className="hero-content flex-col lg:flex-row-reverse">
         {/* Hero Image / Illustration */}
         <img
@@ -22,8 +24,12 @@ export default function Hero() {
 
           {/* Call to Actions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            <button className="btn btn-primary btn-lg">Get Started</button>
-            <button className="btn btn-outline btn-lg">Learn More</button>
+            <Link className="btn btn-primary btn-lg" to="/signup">
+              Get Started
+            </Link>
+            <Link className="btn btn-outline btn-lg" to="#features">
+              Learn More
+            </Link>
           </div>
         </div>
       </div>
