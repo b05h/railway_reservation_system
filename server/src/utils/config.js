@@ -13,7 +13,7 @@ const loadConfig = () => {
   }
 
   return {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 8080,
     db: {
       host: process.env.DB_HOST || "localhost",
       port: process.env.DB_PORT || 5432,
