@@ -2,10 +2,10 @@ import { queryDB } from "../utils/db.js";
 
 class User {
   static async create(name, email, password) {
-    const query = `INSERT INTO users (name, email, password) VALUES ($1, $2, $3)`;
+    const query = `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email`;
     const values = [name, email, password];
     const user = await queryDB(query, values);
-    return user;
+    return user.rows[0];
   }
 
   static async findById(id) {
