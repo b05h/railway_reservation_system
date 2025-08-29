@@ -1,7 +1,16 @@
-export class ErrorHandler extends Error {
-  constructor(statusCode, message) {
+export class AppError extends Error {
+  constructor(
+    status = 500,
+    message,
+    title = message,
+    instance,
+    type = "about:blank",
+  ) {
     super(message);
-    this.statusCode = statusCode;
+    this.status = status;
+    this.type = type;
+    this.title = title;
+    this.instance = instance;
     Error.captureStackTrace(this, this.constructor);
   }
 }
