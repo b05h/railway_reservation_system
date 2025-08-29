@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "@tanstack/react-router";
-import useAuthStore from "../store/useAuthStore.js";
+import { useAuthStore } from "../store/useAuthStore.js";
 import Branding from "./branding.jsx";
 
 const navItems = [
@@ -11,14 +11,14 @@ const navItems = [
 ];
 
 const Navigation = () => {
-  const { user, logout } = useAuthStore();
+  const { token, clearAuth } = useAuthStore();
 
   return (
-    <nav className="px-4 py-2 flex justify-between items-center bg-base-200 shadow-md">
+    <nav className="px-4 py-2 flex justify-between items-center bg-base-300 shadow-md">
       <Branding />
       <ul className="flex space-x-4 items-center">
         {navItems.map((item) => {
-          if (item.private && !user) {
+          if (item.private && !token) {
             return null;
           }
           return (
@@ -35,10 +35,11 @@ const Navigation = () => {
       </ul>
       <ul className="flex space-x-4 items-center">
         <li className="ml-auto">
-          {user ? (
+          {token ? (
             <div className="dropdown">
-              <label tabIndex={0} className="btn btn-primary m-1">
-                {user.name}
+              <label tabIndex={0} className="btn btn-sm btn-primary m-1">
+                Username
+                {/* {user.name} */}
               </label>
               <ul
                 tabIndex={0}
@@ -48,7 +49,7 @@ const Navigation = () => {
                   <Link to="/profile">Profile</Link>
                 </li>
                 <li>
-                  <button onClick={logout}>Logout</button>
+                  <button onClick={clearAuth}>Sign Out</button>
                 </li>
               </ul>
             </div>
