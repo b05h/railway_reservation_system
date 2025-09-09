@@ -92,7 +92,6 @@ erDiagram
         int stop_number
         time arrival_time
         time departure_time
-        float distance_from_origin
     }
     BOOKING {
         int id PK
