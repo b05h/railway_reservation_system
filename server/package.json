@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "migrate": "node-pg-migrate"
+    "migrate": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/sidetrack-dev-db node-pg-migrate"
   },
   "keywords": [],
   "author": "",
