@@ -9,24 +9,36 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("audit_log", {
+  pgm.createTable("coaches", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
-    user_id: {
+    train_id: {
       type: "uuid",
       notNull: true,
-      references: "user(id)",
+      references: "trains(id)",
       onDelete: "cascade",
       onUpdate: "cascade",
     },
-    action: {
+    coach_type_id: {
+      type: "uuid",
+      notNull: true,
+      references: "coach_types(id)",
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    },
+    code: {
       type: "text",
       notNull: true,
     },
-    timestamp: {
+    updated_at: {
+      type: "timestamp",
+      notNull: true,
+      default: pgm.func("now()"),
+    },
+    created_at: {
       type: "timestamp",
       notNull: true,
       default: pgm.func("now()"),
@@ -40,5 +52,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("audit_log");
+  pgm.dropTable("coaches");
 };

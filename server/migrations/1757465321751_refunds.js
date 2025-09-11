@@ -9,25 +9,42 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("payment_status", {
+  pgm.createTable("refunds", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
-    name: {
-      type: "text",
+    payment_id: {
+      type: "uuid",
       notNull: true,
+      references: "payments(id)",
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    },
+    amount: {
+      type: "money",
+      notNull: true,
+    },
+    status_id: {
+      type: "uuid",
+      notNull: true,
+      references: "refund_statuses(id)",
+    },
+    refund_date: {
+      type: "date",
+      notNull: true,
+      default: pgm.func("CURRENT_DATE"),
     },
     updated_at: {
       type: "timestamp",
       notNull: true,
-      default: pgm.func("now()"),
+      default: pgm.func("CURRENT_TIMESTAMP"),
     },
     created_at: {
       type: "timestamp",
       notNull: true,
-      default: pgm.func("now()"),
+      default: pgm.func("CURRENT_TIMESTAMP"),
     },
   });
 };
@@ -38,5 +55,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("payment_status");
+  pgm.dropTable("refunds");
 };

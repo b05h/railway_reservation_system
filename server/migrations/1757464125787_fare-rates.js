@@ -9,36 +9,28 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("schedule_stop", {
+  pgm.createTable("fare_rates", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
-    schedule_id: {
+    train_id: {
       type: "uuid",
       notNull: true,
-      references: "schedule(id)",
+      references: "trains(id)",
       onDelete: "cascade",
       onUpdate: "cascade",
     },
-    station_id: {
+    coach_type_id: {
       type: "uuid",
       notNull: true,
-      references: "station(id)",
+      references: "coach_types(id)",
       onDelete: "cascade",
       onUpdate: "cascade",
     },
-    stop_number: {
-      type: "integer",
-      notNull: true,
-    },
-    arrival_time: {
-      type: "time",
-      notNull: true,
-    },
-    departure_time: {
-      type: "time",
+    rate_per_km: {
+      type: "money",
       notNull: true,
     },
     updated_at: {
@@ -60,5 +52,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("schedule_stop");
+  pgm.dropTable("fare_rates");
 };

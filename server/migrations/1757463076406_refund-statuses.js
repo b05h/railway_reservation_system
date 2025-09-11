@@ -9,21 +9,13 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("station", {
+  pgm.createTable("refund_statuses", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
     name: {
-      type: "text",
-      notNull: true,
-    },
-    code: {
-      type: "text",
-      notNull: true,
-    },
-    city: {
       type: "text",
       notNull: true,
     },
@@ -46,5 +38,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("station");
+  pgm.dropTable("refund_statuses");
 };

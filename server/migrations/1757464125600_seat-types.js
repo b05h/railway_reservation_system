@@ -9,7 +9,7 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("booking_status", {
+  pgm.createTable("seat_types", {
     id: {
       type: "uuid",
       primaryKey: true,
@@ -19,15 +19,9 @@ export const up = (pgm) => {
       type: "text",
       notNull: true,
     },
-    updated_at: {
-      type: "timestamp",
+    description: {
+      type: "text",
       notNull: true,
-      default: pgm.func("now()"),
-    },
-    created_at: {
-      type: "timestamp",
-      notNull: true,
-      default: pgm.func("now()"),
     },
   });
 };
@@ -38,5 +32,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("booking_status");
+  pgm.dropTable("seat_types");
 };

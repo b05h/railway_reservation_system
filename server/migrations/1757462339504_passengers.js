@@ -9,7 +9,7 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("booking", {
+  pgm.createTable("passengers", {
     id: {
       type: "uuid",
       primaryKey: true,
@@ -18,50 +18,26 @@ export const up = (pgm) => {
     user_id: {
       type: "uuid",
       notNull: true,
-      references: "user(id)",
+      references: "users(id)",
       onDelete: "cascade",
       onUpdate: "cascade",
     },
-    schedule_id: {
-      type: "uuid",
-      notNull: true,
-      references: "schedule(id)",
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    },
-    from_station_id: {
-      type: "uuid",
-      notNull: true,
-      references: "station(id)",
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    },
-    to_station_id: {
-      type: "uuid",
-      notNull: true,
-      references: "station(id)",
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    },
-    booking_date: {
-      type: "timestamp",
-      notNull: true,
-      default: pgm.func("now()"),
-    },
-    status_id: {
-      type: "uuid",
-      notNull: true,
-      references: "booking_status(id)",
-      onDelete: "cascade",
-      onUpdate: "cascade",
-    },
-    pnr: {
+    name: {
       type: "text",
       notNull: true,
     },
-    total_amount: {
-      type: "numeric",
+    email: {
+      type: "text",
       notNull: true,
+    },
+    age: {
+      type: "integer",
+      notNull: true,
+    },
+    created_at: {
+      type: "timestamp",
+      notNull: true,
+      default: pgm.func("now()"),
     },
   });
 };
@@ -72,5 +48,5 @@ export const up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 export const down = (pgm) => {
-  pgm.dropTable("booking");
+  pgm.dropTable("passengers");
 };

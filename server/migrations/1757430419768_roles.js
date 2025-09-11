@@ -9,7 +9,7 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
-  pgm.createTable("role", {
+  pgm.createTable("roles", {
     id: {
       type: "uuid",
       primaryKey: true,
