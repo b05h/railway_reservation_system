@@ -1,73 +1,57 @@
 import { queryDB } from "../utils/db.js";
 
 class AuditLog {
-  static async findAll() {
-    const query = `SELECT * FROM audit_logs`;
-    const auditLogs = await queryDB(query);
-    return auditLogs.rows;
-  }
-
-  static async findById(id) {
-    const query = `SELECT * FROM audit_logs WHERE id = $1`;
-    const values = [id];
-    const auditLog = await queryDB(query, values);
-    return auditLog.rows[0];
-  }
-
-  static async filter(filter) {
-    const query = `SELECT * FROM audit_logs`;
+  static async find(filter, sort) {
+    let query = `SELECT * FROM audit_logs`;
     const values = [];
-    let hasWhereClause = false;
+    const conditions = [];
+
+    if (filter.id) {
+      conditions.push(`id = $${values.length + 1}`);
+      values.push(filter.id);
+    }
     if (filter.userId) {
-      if (hasWhereClause) {
-        query += ` AND`;
-      } else {
-        hasWhereClause = true;
-        query += ` WHERE`;
-      }
-      query += ` user_id = $1`;
+      conditions.push(`user_id = $${values.length + 1}`);
       values.push(filter.userId);
     }
     if (filter.action) {
-      if (hasWhereClause) {
-        query += ` AND`;
-      } else {
-        hasWhereClause = true;
-        query += ` WHERE`;
-      }
-      query += ` action = $1`;
+      conditions.push(`action = $${values.length + 1}`);
       values.push(filter.action);
     }
     if (filter.before) {
-      if (hasWhereClause) {
-        query += ` AND`;
-      } else {
-        hasWhereClause = true;
-        query += ` WHERE`;
-      }
-      query += ` timestamp < $1`;
+      conditions.push(`timestamp < $${values.length + 1}`);
       values.push(filter.before);
     }
     if (filter.after) {
-      if (hasWhereClause) {
-        query += ` AND`;
-      } else {
-        hasWhereClause = true;
-        query += ` WHERE`;
-      }
-      query += ` timestamp > $1`;
+      conditions.push(`timestamp > $${values.length + 1}`);
       values.push(filter.after);
     }
-    if (filter.sortBy) {
-      query += ` ORDER BY ${filter.sortBy} ${filter.sortOrder}`;
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(" AND ")}`;
+    }
+
+    const sortableFields = ["timestamp"];
+    const sortOrders = ["ASC", "DESC"];
+
+    if (sort.sortBy && sortableFields.includes(sort.sortBy)) {
+      const sortOrder = sortOrders.includes(sort.sortOrder)
+        ? sort.sortOrder
+        : "ASC";
+      query += ` ORDER BY ${sort.sortBy} ${sortOrder}`;
+    }
+
+    if (filter.limit) {
+      query += ` LIMIT $${values.length + 1} `;
+      values.push(filter.limit);
     }
     if (filter.page) {
-      query += ` LIMIT $2 OFFSET $3`;
-      values.push(filter.limit);
-      values.push(filter.page * filter.limit);
+      query += ` OFFSET $${valuesCount} `;
+      values.push((filter.page - 1) * filter.limit);
     }
-    const auditLogs = await queryDB(query, values);
-    return auditLogs.rows;
+
+    const result = await queryDB(query, values);
+    return result.rows;
   }
 }
 
