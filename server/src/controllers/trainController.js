@@ -1,62 +1,78 @@
-import { z } from "zod";
-import * as trainModel from "../models/trainModel.js";
+import Train from "../models/trainModel.js";
+import { asyncErrorHandler } from "../utils/errors.js";
+import { AppError } from "../utils/errors.js";
+import * as z from "zod";
 
-const searchSchema = z.object({
-  from: z.string().min(1, "from is required"),
-  to: z.string().min(1, "to is required"),
-  class: z.string().optional(),
-  date: z.string().min(1, "date is required"),
+const createTrain = asyncErrorHandler(async (req, res, next) => {
+  const schema = z.object({
+    name: z.string().min(3).max(100),
+    code: z.string().min(2).max(20),
+  });
+
+  const { name, code } = await schema.parseAsync(req.body);
+
+  const train = await Train.create(name, code);
+
+  res.success({ train }, { status: 201 });
 });
 
-const scheduleSchema = z.object({
-  trainId: z.string().min(1, "trainId is required"),
+const getAllTrains = asyncErrorHandler(async (req, res, next) => {
+  const trains = await Train.findAll();
+  res.success({ trains });
 });
 
-const availabilitySchema = z.object({
-  trainId: z.string().min(1, "trainId is required"),
-  date: z.string().min(1, "date is required"),
+const getTrainById = asyncErrorHandler(async (req, res, next) => {
+  const schema = z.object({
+    trainId: z.string().uuid(),
+  });
+  const { trainId } = await schema.parseAsync(req.params);
+  const train = await Train.findById(trainId);
+
+  if (!train) {
+    throw new AppError(404, "Train not found");
+  }
+
+  res.success({ train });
 });
 
+const updateTrain = asyncErrorHandler(async (req, res, next) => {
+  const paramSchema = z.object({
+    trainId: z.string().uuid(),
+  });
+  const bodySchema = z.object({
+    name: z.string().min(3).max(100),
+    code: z.string().min(2).max(20),
+  });
 
+  const { trainId } = await paramSchema.parseAsync(req.params);
+  const { name, code } = await bodySchema.parseAsync(req.body);
 
-// GET /trains/search
-export async function searchTrains(req, res, next) {
-  try {
-    const { from, to, class: coachClass, date } = searchSchema.parse(req.query);
-    const trains = await trainModel.searchTrains(from, to, coachClass, date);
-
-    return res.success(
-      { from, to, coachClass, date, trains },
-      { count: trains.length }
-    );
-  } catch (err) {
-    next(err);
+  const train = await Train.update(trainId, name, code);
+  if (!train) {
+    throw new AppError(404, "Train not found");
   }
-}
+  res.success({ train });
+});
 
-// GET /trains/:trainId/schedule
-export async function getSchedule(req, res, next) {
-  try {
-    const { trainId } = scheduleSchema.parse(req.params);
-    const schedule = await trainModel.getSchedule(trainId);
+const deleteTrain = asyncErrorHandler(async (req, res, next) => {
+  const schema = z.object({
+    trainId: z.string().uuid(),
+  });
+  const { trainId } = await schema.parseAsync(req.params);
+  const train = await Train.delete(trainId);
 
-    return res.success({ trainId, schedule });
-  } catch (err) {
-    next(err);
+  if (!train) {
+    throw new AppError(404, "Train not found");
   }
-}
 
-// GET /trains/:trainId/availability
-export async function getAvailability(req, res, next) {
-  try {
-    const { trainId, date } = availabilitySchema.parse({
-      trainId: req.params.trainId,
-      date: req.query.date,
-    });
+  res.success({ message: "Train deleted successfully" });
+});
 
-    const availability = await trainModel.getAvailability(trainId, date);
-    return res.success({ trainId, date, availability });
-  } catch (err) {
-    next(err);
-  }
-}
+export default {
+  createTrain,
+  getAllTrains,
+  getTrainById,
+  updateTrain,
+  deleteTrain,
+};
+

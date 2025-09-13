@@ -1,7 +1,15 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { authRoutes } from "./routes/index.js";
+import {
+  authRoutes,
+  trainRoutes,
+  stationRoutes,
+  stationDistanceRoutes,
+  scheduleRoutes,
+  auditLogRoutes,
+  coachTypeRoutes,
+} from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 import responseTransformer from "./middleware/responseTransformer.js";
 
@@ -26,6 +34,13 @@ export default function createApp(config) {
   const api = express.Router();
 
   api.use("/auth", authRoutes);
+  api.use("/admin", trainRoutes);
+  api.use("/admin", stationRoutes);
+  api.use("/admin", stationDistanceRoutes);
+  api.use("/admin/audit-log", auditLogRoutes);
+  api.use("/admin/coach-types", coachTypeRoutes);
+  api.use("/admin/schedules", scheduleRoutes);
+
   api.get("/", (req, res) => {
     res.send("Hello World!");
   });

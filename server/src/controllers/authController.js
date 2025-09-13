@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { asyncErrorHandler } from "../utils/errors.js";
-import User from "../models/userModel.js";
 import { AppError } from "../utils/errors.js";
 import { getToken } from "../utils/jwt.js";
 import * as z from "zod";
+import { User, Role } from "../models/index.js";
 
 const signUp = asyncErrorHandler(async (req, res, next) => {
   0;
@@ -18,8 +18,11 @@ const signUp = asyncErrorHandler(async (req, res, next) => {
   // hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  // retrieve "customer" role id
+  const role = (await Role.find({ name: "customer" }))[0];
+
   // create user
-  const user = await User.create(name, email, hashedPassword);
+  const user = await User.create(name, email, hashedPassword, role.id);
 
   res.success({ user }, { status: 201 });
 });
@@ -39,7 +42,7 @@ const signIn = asyncErrorHandler(async (req, res, next) => {
   }
 
   // check password and throw error if invalid
-  const validPassword = await bcrypt.compare(password, user.password);
+  const validPassword = await bcrypt.compare(password, user.password_hash);
   if (!validPassword) {
     throw new AppError(401, "Invalid email or password");
   }
