@@ -3,7 +3,7 @@ import {
   searchTrains,
   getSchedule,
   getAvailability,
-} from "../controllers/trainController(user).js";
+} from "../controllers/trainController_user.js";
 
 const router = express.Router();
 
