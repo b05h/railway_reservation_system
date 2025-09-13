@@ -1,4 +1,5 @@
 export { default as User } from "./userModel.js";
+export { default as Role } from "./roleModel.js";
 export { default as Audit } from "./auditLogModel.js";
 export { default as Train } from "./trainModel.js";
 export { default as Station } from "./stationModel.js";
