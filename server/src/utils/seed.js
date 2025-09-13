@@ -125,60 +125,54 @@ const seedFareRates = async () => {
   console.log("Seeding fare_rates...");
 
   const coachTypesResult = await queryDB("SELECT id, name FROM coach_types");
-  const seatTypesResult = await queryDB("SELECT id, name FROM seat_types");
+  const trainsResult = await queryDB("SELECT id, name FROM trains");
 
-  if (coachTypesResult.rows.length === 0 || seatTypesResult.rows.length === 0) {
-    console.log("  - Skipping fare_rates (missing coach_types or seat_types)");
+  if (coachTypesResult.rows.length === 0 || trainsResult.rows.length === 0) {
+    console.log("  - Skipping fare_rates (missing coach_types or trains)");
     return;
   }
 
   const fareRates = [];
 
-  for (const coachType of coachTypesResult.rows) {
-    for (const seatType of seatTypesResult.rows) {
-      let baseRate = 100;
+  for (const train of trainsResult.rows) {
+    for (const coachType of coachTypesResult.rows) {
+      let ratePerKm = 1.0;
 
       switch (coachType.name) {
         case "AC 1 Tier":
-          baseRate = 500;
+          ratePerKm = 5.0;
           break;
         case "AC 2 Tier":
-          baseRate = 350;
+          ratePerKm = 3.5;
           break;
         case "AC 3 Tier":
-          baseRate = 250;
+          ratePerKm = 2.5;
           break;
         case "AC Chair Car":
-          baseRate = 200;
+          ratePerKm = 2.0;
           break;
         case "Sleeper Class":
-          baseRate = 150;
+          ratePerKm = 1.5;
           break;
         case "General":
-          baseRate = 50;
+          ratePerKm = 0.5;
           break;
-      }
-
-      if (seatType.name === "Lower Berth") {
-        baseRate += 50;
-      } else if (seatType.name === "Side Lower") {
-        baseRate += 30;
       }
 
       fareRates.push({
+        train_id: train.id,
         coach_type_id: coachType.id,
-        seat_type_id: seatType.id,
-        rate_per_km: baseRate / 100,
+        rate_per_km: ratePerKm,
       });
     }
   }
 
   for (const fareRate of fareRates) {
     // Check if fare rate already exists
-    const existsQuery = `SELECT id FROM fare_rates WHERE coach_type_id = $1 AND seat_type_id = $2`;
+    const existsQuery = `SELECT id FROM fare_rates WHERE train_id = $1 AND coach_type_id = $2`;
     const existsResult = await queryDB(existsQuery, [
+      fareRate.train_id,
       fareRate.coach_type_id,
-      fareRate.seat_type_id,
     ]);
 
     if (existsResult.rows.length > 0) {
@@ -186,20 +180,20 @@ const seedFareRates = async () => {
     }
 
     const query = `
-      INSERT INTO fare_rates (coach_type_id, seat_type_id, rate_per_km, created_at, updated_at)
+      INSERT INTO fare_rates (train_id, coach_type_id, rate_per_km, created_at, updated_at)
       VALUES ($1, $2, $3, NOW(), NOW())
       RETURNING id;
     `;
 
     try {
       const result = await queryDB(query, [
+        fareRate.train_id,
         fareRate.coach_type_id,
-        fareRate.seat_type_id,
         fareRate.rate_per_km,
       ]);
 
       if (result.rows.length > 0) {
-        console.log(`  ✓ Inserted fare rate for coach/seat type combination`);
+        console.log(`  ✓ Inserted fare rate for train/coach type combination`);
       }
     } catch (error) {
       console.error(`  ✗ Error inserting fare rate:`, error.message);
@@ -284,6 +278,198 @@ const seedUsers = async () => {
   }
 };
 
+const seedSchedules = async () => {
+  console.log("Seeding schedules...");
+
+  const trainsResult = await queryDB("SELECT id, name, code FROM trains");
+
+  if (trainsResult.rows.length === 0) {
+    console.log("  - Skipping schedules (no trains found)");
+    return;
+  }
+
+  const schedules = [
+    {
+      train_id: trainsResult.rows[0].id, // Rajdhani Express
+      departure_date: "2025-01-15",
+      departure_time: "16:55:00",
+    },
+    {
+      train_id: trainsResult.rows[1].id, // Shatabdi Express
+      departure_date: "2025-01-15",
+      departure_time: "06:00:00",
+    },
+    {
+      train_id: trainsResult.rows[2].id, // Duronto Express
+      departure_date: "2025-01-16",
+      departure_time: "22:30:00",
+    },
+    {
+      train_id: trainsResult.rows[3].id, // Garib Rath
+      departure_date: "2025-01-16",
+      departure_time: "23:45:00",
+    },
+    {
+      train_id: trainsResult.rows[4].id, // Jan Shatabdi
+      departure_date: "2025-01-17",
+      departure_time: "05:30:00",
+    },
+  ];
+
+  const insertedSchedules = [];
+
+  for (const schedule of schedules) {
+    // Check if schedule already exists
+    const existsQuery = `SELECT id FROM schedules WHERE train_id = $1 AND departure_date = $2 AND departure_time = $3`;
+    const existsResult = await queryDB(existsQuery, [
+      schedule.train_id,
+      schedule.departure_date,
+      schedule.departure_time,
+    ]);
+
+    if (existsResult.rows.length > 0) {
+      console.log(`  - Schedule for train already exists for ${schedule.departure_date}`);
+      insertedSchedules.push(existsResult.rows[0]);
+      continue;
+    }
+
+    const query = `
+      INSERT INTO schedules (train_id, departure_date, departure_time, created_at, updated_at)
+      VALUES ($1, $2, $3, NOW(), NOW())
+      RETURNING id, train_id, departure_date;
+    `;
+
+    try {
+      const result = await queryDB(query, [
+        schedule.train_id,
+        schedule.departure_date,
+        schedule.departure_time,
+      ]);
+
+      if (result.rows.length > 0) {
+        console.log(`  ✓ Inserted schedule for ${schedule.departure_date}`);
+        insertedSchedules.push(result.rows[0]);
+      }
+    } catch (error) {
+      console.error(`  ✗ Error inserting schedule:`, error.message);
+    }
+  }
+
+  return insertedSchedules;
+};
+
+const seedScheduleStops = async () => {
+  console.log("Seeding schedule_stops...");
+
+  const schedulesResult = await queryDB("SELECT id, train_id FROM schedules");
+  const stationsResult = await queryDB("SELECT id, name, code FROM stations");
+
+  if (schedulesResult.rows.length === 0 || stationsResult.rows.length === 0) {
+    console.log("  - Skipping schedule_stops (missing schedules or stations)");
+    return;
+  }
+
+  // Define route stops for different trains
+  const routeDefinitions = [
+    {
+      // Rajdhani Express: New Delhi -> Mumbai Central
+      stations: ["NDLS", "JP", "ADI", "BCT"],
+      times: [
+        { arrival: "16:55:00", departure: "16:55:00" }, // Start station
+        { arrival: "21:30:00", departure: "21:40:00" }, // Jaipur
+        { arrival: "05:15:00", departure: "05:25:00" }, // Ahmedabad
+        { arrival: "12:30:00", departure: "12:30:00" }, // End station
+      ],
+    },
+    {
+      // Shatabdi Express: New Delhi -> Jaipur
+      stations: ["NDLS", "JP"],
+      times: [
+        { arrival: "06:00:00", departure: "06:00:00" }, // Start station
+        { arrival: "10:45:00", departure: "10:45:00" }, // End station
+      ],
+    },
+    {
+      // Duronto Express: Mumbai Central -> Howrah
+      stations: ["BCT", "PUNE", "SC", "HWH"],
+      times: [
+        { arrival: "22:30:00", departure: "22:30:00" }, // Start station
+        { arrival: "01:15:00", departure: "01:25:00" }, // Pune
+        { arrival: "14:20:00", departure: "14:30:00" }, // Secunderabad
+        { arrival: "06:45:00", departure: "06:45:00" }, // End station
+      ],
+    },
+    {
+      // Garib Rath: New Delhi -> Chennai Central
+      stations: ["NDLS", "SC", "MAS"],
+      times: [
+        { arrival: "23:45:00", departure: "23:45:00" }, // Start station
+        { arrival: "20:30:00", departure: "20:40:00" }, // Secunderabad
+        { arrival: "06:15:00", departure: "06:15:00" }, // End station
+      ],
+    },
+    {
+      // Jan Shatabdi: New Delhi -> Lucknow
+      stations: ["NDLS", "LKO"],
+      times: [
+        { arrival: "05:30:00", departure: "05:30:00" }, // Start station
+        { arrival: "11:45:00", departure: "11:45:00" }, // End station
+      ],
+    },
+  ];
+
+  for (let scheduleIndex = 0; scheduleIndex < Math.min(schedulesResult.rows.length, routeDefinitions.length); scheduleIndex++) {
+    const schedule = schedulesResult.rows[scheduleIndex];
+    const route = routeDefinitions[scheduleIndex];
+
+    for (let stopIndex = 0; stopIndex < route.stations.length; stopIndex++) {
+      const stationCode = route.stations[stopIndex];
+      const timeInfo = route.times[stopIndex];
+      
+      const station = stationsResult.rows.find(s => s.code === stationCode);
+      if (!station) {
+        console.log(`  - Station ${stationCode} not found, skipping`);
+        continue;
+      }
+
+      // Check if schedule stop already exists
+      const existsQuery = `SELECT id FROM schedule_stops WHERE schedule_id = $1 AND station_id = $2 AND stop_number = $3`;
+      const existsResult = await queryDB(existsQuery, [
+        schedule.id,
+        station.id,
+        stopIndex + 1,
+      ]);
+
+      if (existsResult.rows.length > 0) {
+        console.log(`  - Schedule stop ${stopIndex + 1} for ${station.name} already exists`);
+        continue;
+      }
+
+      const query = `
+        INSERT INTO schedule_stops (schedule_id, station_id, stop_number, arrival_time, departure_time, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+        RETURNING id;
+      `;
+
+      try {
+        const result = await queryDB(query, [
+          schedule.id,
+          station.id,
+          stopIndex + 1,
+          timeInfo.arrival,
+          timeInfo.departure,
+        ]);
+
+        if (result.rows.length > 0) {
+          console.log(`  ✓ Inserted schedule stop ${stopIndex + 1} for ${station.name}`);
+        }
+      } catch (error) {
+        console.error(`  ✗ Error inserting schedule stop for ${station.name}:`, error.message);
+      }
+    }
+  }
+};
+
 export const seedDatabase = async () => {
   try {
     console.log("🌱 Starting database seeding...\n");
@@ -299,6 +485,8 @@ export const seedDatabase = async () => {
 
     await seedFareRates();
     await seedUsers();
+    await seedSchedules();
+    await seedScheduleStops();
 
     console.log("\n✅ Database seeding completed successfully!");
   } catch (error) {
