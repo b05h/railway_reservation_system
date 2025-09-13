@@ -2,7 +2,7 @@ import { queryDB } from "../utils/db.js";
 
 class ScheduleModel {
   static async find(filter, sort) {
-    const query = `SELECT * FROM schedules`;
+    let query = `SELECT * FROM schedules`;
     const values = [];
     const conditions = [];
 
