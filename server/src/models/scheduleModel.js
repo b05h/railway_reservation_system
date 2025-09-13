@@ -6,41 +6,47 @@ class ScheduleModel {
     const values = [];
     const conditions = [];
 
-    if (filter.id) {
-      conditions.push(`id = $${values.length + 1}`);
-      values.push(filter.id);
-    }
-    if (filter.trainId) {
-      conditions.push(`train_id = $${values.length + 1}`);
-      values.push(filter.trainId);
-    }
-    if (filter.departureDate) {
-      conditions.push(`departure_date = $${values.length + 1}`);
-      values.push(filter.departureDate);
-    }
-    if (filter.departureTime) {
-      conditions.push(`departure_time = $${values.length + 1}`);
-      values.push(filter.departureTime);
+    if (filter) {
+      if (filter.id) {
+        conditions.push(`id = $${values.length + 1}`);
+        values.push(filter.id);
+      }
+      if (filter.trainId) {
+        conditions.push(`train_id = $${values.length + 1}`);
+        values.push(filter.trainId);
+      }
+      if (filter.departureDate) {
+        conditions.push(`departure_date = $${values.length + 1}`);
+        values.push(filter.departureDate);
+      }
+      if (filter.departureTime) {
+        conditions.push(`departure_time = $${values.length + 1}`);
+        values.push(filter.departureTime);
+      }
+
+      if (conditions.length > 0) {
+        query += ` WHERE ${conditions.join(" AND ")}`;
+      }
     }
 
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(" AND ")}`;
+    if (sort) {
+      const sortableFields = ["departure_date", "departure_time"];
+
+      if (sort.sortBy && sortableFields.includes(sort.sortBy)) {
+        const sortOrder = sort.sortOrder || "ASC";
+        query += ` ORDER BY ${sort.sortBy} ${sortOrder}`;
+      }
     }
 
-    const sortableFields = ["departure_date", "departure_time"];
-
-    if (sort.sortBy && sortableFields.includes(sort.sortBy)) {
-      const sortOrder = sort.sortOrder || "ASC";
-      query += ` ORDER BY ${sort.sortBy} ${sortOrder}`;
-    }
-
-    if (filter.limit) {
-      query += ` LIMIT $${values.length + 1} `;
-      values.push(filter.limit);
-    }
-    if (filter.page) {
-      query += ` OFFSET $${values.length + 1} `;
-      values.push((filter.page - 1) * filter.limit);
+    if (filter) {
+      if (filter.limit) {
+        query += ` LIMIT $${values.length + 1} `;
+        values.push(filter.limit);
+      }
+      if (filter.page) {
+        query += ` OFFSET $${values.length + 1} `;
+        values.push((filter.page - 1) * filter.limit);
+      }
     }
 
     const result = await queryDB(query, values);

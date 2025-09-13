@@ -6,36 +6,42 @@ class CoachType {
     const values = [];
     const conditions = [];
 
-    if (filter.id) {
-      conditions.push(`id = $${values.length + 1}`);
-      values.push(filter.id);
-    }
-    if (filter.name) {
-      conditions.push(`name = $${values.length + 1}`);
-      values.push(filter.name);
+    if (filter) {
+      if (filter.id) {
+        conditions.push(`id = $${values.length + 1}`);
+        values.push(filter.id);
+      }
+      if (filter.name) {
+        conditions.push(`name = $${values.length + 1}`);
+        values.push(filter.name);
+      }
+
+      if (conditions.length > 0) {
+        query += ` WHERE ${conditions.join(" AND ")}`;
+      }
     }
 
-    if (conditions.length > 0) {
-      query += ` WHERE ${conditions.join(" AND ")}`;
+    if (sort) {
+      const sortableFields = ["name"];
+      const sortOrders = ["ASC", "DESC"];
+
+      if (sort.sortBy && sortableFields.includes(sort.sortBy)) {
+        const sortOrder = sortOrders.includes(sort.sortOrder)
+          ? sort.sortOrder
+          : "ASC";
+        query += ` ORDER BY ${sort.sortBy} ${sortOrder}`;
+      }
     }
 
-    const sortableFields = ["name"];
-    const sortOrders = ["ASC", "DESC"];
-
-    if (sort.sortBy && sortableFields.includes(sort.sortBy)) {
-      const sortOrder = sortOrders.includes(sort.sortOrder)
-        ? sort.sortOrder
-        : "ASC";
-      query += ` ORDER BY ${sort.sortBy} ${sortOrder}`;
-    }
-
-    if (filter.limit) {
-      query += ` LIMIT $${values.length + 1} `;
-      values.push(filter.limit);
-    }
-    if (filter.page) {
-      query += ` OFFSET $${values.length + 1} `;
-      values.push((filter.page - 1) * filter.limit);
+    if (filter) {
+      if (filter.limit) {
+        query += ` LIMIT $${values.length + 1} `;
+        values.push(filter.limit);
+      }
+      if (filter.page) {
+        query += ` OFFSET $${values.length + 1} `;
+        values.push((filter.page - 1) * filter.limit);
+      }
     }
 
     const result = await queryDB(query, values);
