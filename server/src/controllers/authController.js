@@ -42,7 +42,7 @@ const signIn = asyncErrorHandler(async (req, res, next) => {
   }
 
   // check password and throw error if invalid
-  const validPassword = await bcrypt.compare(password, user.password);
+  const validPassword = await bcrypt.compare(password, user.password_hash);
   if (!validPassword) {
     throw new AppError(401, "Invalid email or password");
   }
