@@ -56,15 +56,18 @@ class CoachType {
   }
 
   static async update(id, coachTypeName) {
-    const query = `UPDATE coach_types SET name = $1 WHERE id = $2`;
+    const query = `UPDATE coach_types SET name = $1 WHERE id = $2 RETURNING *`;
     const values = [coachTypeName, id];
-    await queryDB(query, values);
+    const result = await queryDB(query, values);
+    console.log(result);
+    return result.rows[0];
   }
 
   static async delete(id) {
-    const query = `DELETE FROM coach_types WHERE id = $1`;
+    const query = `DELETE FROM coach_types WHERE id = $1 RETURNING *`;
     const values = [id];
-    await queryDB(query, values);
+    const result = await queryDB(query, values);
+    return result.rows[0];
   }
 }
 
