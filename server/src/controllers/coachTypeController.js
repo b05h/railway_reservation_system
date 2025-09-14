@@ -21,7 +21,7 @@ const get = asyncErrorHandler(async (req, res) => {
     { id, name, page, limit },
     { sortBy, sortOrder },
   );
-  if (!coachTypes) {
+  if (!coachTypes || coachTypes.length === 0) {
     throw new AppError(404, "Coach type not found");
   }
   return res.success({ coachTypes });
@@ -33,7 +33,7 @@ const getById = asyncErrorHandler(async (req, res) => {
   });
   const { id } = await schema.parseAsync(req.params);
 
-  const coachType = await CoachType.find({ id });
+  const coachType = (await CoachType.find({ id }))[0];
   if (!coachType) {
     throw new AppError(404, "Coach type not found");
   }
@@ -54,11 +54,15 @@ const create = asyncErrorHandler(async (req, res) => {
 });
 
 const update = asyncErrorHandler(async (req, res) => {
-  const schema = z.object({
-    id: z.uuid(),
+  const bodySchema = z.object({
     name: z.string().min(3).max(50),
   });
-  const { id, name } = await schema.parseAsync(req.body);
+  const paramsSchema = z.object({
+    id: z.uuid(),
+  });
+
+  const { id } = await paramsSchema.parseAsync(req.params);
+  const { name } = await bodySchema.parseAsync(req.body);
 
   const coachType = await CoachType.update(id, name);
   if (!coachType) {
