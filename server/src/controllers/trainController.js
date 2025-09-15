@@ -16,6 +16,7 @@ const createTrain = asyncErrorHandler(async (req, res, next) => {
   res.success({ train }, { status: 201 });
 });
 
+
 const getAllTrains = asyncErrorHandler(async (req, res, next) => {
   const trains = await Train.findAll();
   res.success({ trains });
