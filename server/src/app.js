@@ -11,6 +11,7 @@ import {
   coachTypeRoutes,
 } from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import authenticate from "./middleware/authenticate.js";
 import responseTransformer from "./middleware/responseTransformer.js";
 
 export default function createApp(config) {
@@ -34,15 +35,15 @@ export default function createApp(config) {
   const api = express.Router();
 
   api.use("/auth", authRoutes);
-  api.use("/admin", trainRoutes);
-  api.use("/admin", stationRoutes);
-  api.use("/admin", stationDistanceRoutes);
-  api.use("/admin/audit-log", auditLogRoutes);
-  api.use("/admin/coach-types", coachTypeRoutes);
-  api.use("/admin/schedules", scheduleRoutes);
+  api.use("/admin", authenticate("admin"), trainRoutes);
+  api.use("/admin", authenticate("admin"), stationRoutes);
+  api.use("/admin", authenticate("admin"), stationDistanceRoutes);
+  api.use("/admin/audit-log", authenticate("admin"), auditLogRoutes);
+  api.use("/admin/coach-types", authenticate("admin"), coachTypeRoutes);
+  api.use("/admin/schedules", authenticate("admin"), scheduleRoutes);
 
   api.get("/", (req, res) => {
-    res.send("Hello World!");
+    res.send("This is the Railway Reservation System API");
   });
 
   app.use("/api/v1", api);

@@ -1,26 +1,48 @@
 import * as z from "zod";
-import { verifyToken } from "../utils/jwt";
-import { AppError } from "../utils/errors";
+import { verifyToken } from "../utils/jwt.js";
+import { AppError } from "../utils/errors.js";
+import { queryDB } from "../utils/db.js";
 
-export default function authenticate(req, res, next) {
-  // validate authorization header
-  const schema = z.object({
-    authorization: z.string(),
-  });
-  const { authorization } = schema.parse(req.headers);
+const authenticate =
+  (role = "customer") =>
+  async (req, res, next) => {
+    // validate authorization header
+    const schema = z.object({
+      authorization: z.string().startsWith("Bearer ").optional(),
+    });
+    const { authorization } = schema.parse(req.headers);
+    if (!authorization) {
+      throw new AppError(401, "Authorization header missing");
+    }
 
-  // extract token from authorization header
-  const [, token] = authorization.split(" ");
-  if (!token) {
-    throw new AppError(401, "Token missing");
-  }
+    // extract token from authorization header
+    const [, token] = authorization.split(" ");
+    if (!token) {
+      throw new AppError(401, "Token missing");
+    }
 
-  // verify token
-  const userId = verifyToken(token);
-  if (!userId) {
-    throw new AppError(401, "Invalid token");
-  }
+    // verify token
+    const userId = verifyToken(token).id;
+    if (!userId) {
+      throw new AppError(401, "Invalid token");
+    }
 
-  req.userId = userId;
-  next();
-}
+    // retrieve user's role
+    const query =
+      "SELECT roles.name FROM users JOIN roles ON users.role_id = roles.id WHERE users.id = $1";
+    const values = [userId];
+    const { rows } = await queryDB(query, values);
+
+    if (rows.length === 0) {
+      throw new AppError(401, "User not found");
+    }
+
+    if (rows[0].name !== role) {
+      throw new AppError(401, "User not authorized");
+    }
+
+    req.userId = userId;
+    next();
+  };
+
+export default authenticate;
