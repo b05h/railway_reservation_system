@@ -5,7 +5,7 @@ import Branding from "./branding.jsx";
 
 const navItems = [
   { name: "Home", to: "/", private: false },
-  { name: "Search Trains", to: "/search", private: false },
+  { name: "Search Trains", to: "/trains", private: false },
   { name: "My Bookings", to: "/bookings", private: true },
   { name: "Contact Us", to: "/contact", private: false },
 ];
