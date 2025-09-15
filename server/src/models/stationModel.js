@@ -24,13 +24,22 @@ class Station {
     return result.rows;
   }
 
-  static async update(id, name, code, city) {
-    const query = `
-      UPDATE ${this.TABLE} SET name = $1, code = $2, city = $3, updated_at = NOW() WHERE id = $4 RETURNING *`;
-    const values = [name, code, city, id];
-    const result = await queryDB(query, values);
-    return result.rows[0];
-  }
+  static async update(id, data) {
+  const { name, code, city } = data;
+  const query = `
+    UPDATE ${this.TABLE}
+    SET
+      name = COALESCE($1, name),
+      code = COALESCE($2, code),
+      city = COALESCE($3, city),
+      updated_at = NOW()
+    WHERE id = $4
+    RETURNING *
+  `;
+  const values = [name, code, city, id];
+  const result = await queryDB(query, values);
+  return result.rows[0];
+}
 
   static async delete(id) {
     const query = `DELETE FROM ${this.TABLE} WHERE id = $1 RETURNING *`;

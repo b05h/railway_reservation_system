@@ -37,20 +37,22 @@ const getStationById = asyncErrorHandler(async (req, res, next) => {
   res.success({ station });
 });
 
+
 const updateStation = asyncErrorHandler(async (req, res, next) => {
   const paramSchema = z.object({
     stationId: z.string().uuid(),
   });
+  
   const bodySchema = z.object({
-    name: z.string().min(2).max(100),
-    code: z.string().min(1).max(20),
-    city: z.string().min(2).max(50),
+    name: z.string().min(2).max(100).optional(),
+    code: z.string().min(1).max(20).optional(),
+    city: z.string().min(2).max(50).optional(),
   });
 
   const { stationId } = await paramSchema.parseAsync(req.params);
-  const { name, code, city } = await bodySchema.parseAsync(req.body);
+  const updateData = await bodySchema.parseAsync(req.body);
 
-  const station = await Station.update(stationId, name, code, city);
+  const station = await Station.update(stationId, updateData); 
   if (!station) {
     throw new AppError(404, "Station not found");
   }
