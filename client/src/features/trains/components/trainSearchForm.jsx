@@ -35,7 +35,7 @@ export default function TrainSearchForm() {
   const onSubmit = (data) => {
     if (data.trainNo) {
       // Navigate to train details page
-      router.navigate({ to: `/trains/${data.trainNo}` });
+      router.navigate({ to: `/trains/${data.trainNo}/details` });
     } else {
       // Navigate to route search results page with query params
       router.navigate({

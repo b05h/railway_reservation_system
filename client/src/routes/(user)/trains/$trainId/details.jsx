@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { TrainSearchbyNo } from '../../../features/trains/components'
+import { TrainSearchbyNo } from '../../../../features/trains/components'
 
-export const Route = createFileRoute('/(user)/trains/$trainId')({
+export const Route = createFileRoute('/(user)/trains/$trainId/details')({
   component: RouteComponent,
 })
 
