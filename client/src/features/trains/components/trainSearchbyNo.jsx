@@ -1,6 +1,6 @@
 import { useParams, Link } from "@tanstack/react-router";
 
-export default function TrainDetail() {
+export default function TrainSearchbyNo() {
   const { trainId } = useParams({ from: "/(user)/trains/$trainId" });
 
   const mockTrains = [
