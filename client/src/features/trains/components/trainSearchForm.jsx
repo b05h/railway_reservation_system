@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "@tanstack/react-router";
 
-// ✅ Schema: Either trainNo OR (source + destination)
+
 const searchSchema = z
   .object({
     trainNo: z.string().optional(),
