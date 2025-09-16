@@ -8,7 +8,7 @@ export const getTrainSchedule = (trainId) => {
       { station: "Station B", arrival: "11:00", departure: "11:05" },
       { station: "Station Y", arrival: "12:00", departure: "-" },
     ],
-    102: [
+    67890: [
       { station: "Station P", arrival: "-", departure: "07:00" },
       { station: "Station Q", arrival: "08:20", departure: "08:25" },
       { station: "Station R", arrival: "09:40", departure: "09:45" },

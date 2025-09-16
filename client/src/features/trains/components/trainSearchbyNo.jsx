@@ -83,7 +83,7 @@ export default function TrainSearchbyNo() {
             <Link to={`/trains/${train.code}/schedule`} className="btn btn-info">
               View Schedule
             </Link>
-            <Link to={`/trains/${train.code}/book`} className="btn btn-primary">
+            <Link to={`/trains/${train.code}/book/new`} className="btn btn-primary">
               Book Now
             </Link>
           </div>

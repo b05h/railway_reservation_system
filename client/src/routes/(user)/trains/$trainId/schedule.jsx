@@ -3,10 +3,10 @@ import {TrainSchedule} from "../../../../features/trains/components";
 import { getTrainSchedule } from "../../../../features/trains/services/trainService";
 
 export const Route = createFileRoute("/(user)/trains/$trainId/schedule")({
-  component: SchedulePage,
+  component: RouteComponent,
 });
 
-function SchedulePage() {
+function RouteComponent() {
   const { trainId } = useParams({ from: "/(user)/trains/$trainId/schedule" });
   
   const schedule = getTrainSchedule(trainId); // fetch from service

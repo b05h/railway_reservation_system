@@ -75,13 +75,13 @@ export default function TrainSearchBySource() {
                   <td>{train.classes.join(", ")}</td>
                   <td className="flex gap-2 justify-center">
                     <Link
-                      to={`/trains/${train.code}`}
+                      to={`/trains/${train.code}/details`}
                       className="btn btn-sm btn-outline"
                     >
                       View Details
                     </Link>
                     <Link
-                      to={`/trains/${train.code}/book`}
+                      to={`/trains/${train.code}/book/new`}
                       className="btn btn-sm btn-primary"
                     >
                       Book Now
