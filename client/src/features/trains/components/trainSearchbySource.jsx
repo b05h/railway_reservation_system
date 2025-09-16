@@ -1,37 +1,20 @@
 // src/features/trains/components/TrainSearchBySource.jsx
 import { useSearch, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { getTrainsByRoute } from "../services/trainService";
 
 export default function TrainSearchBySource() {
   const search = useSearch({ from: "/(user)/trains/search" });
+  const [trains, setTrains] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const mockTrains = [
-    {
-      code: "12345",
-      name: "Express A",
-      source: "Station X",
-      destination: "Station Y",
-      departureTime: "08:00",
-      arrivalTime: "12:00",
-      duration: "4h",
-      classes: ["Sleeper", "AC", "General"],
-    },
-    {
-      code: "67890",
-      name: "Express B",
-      source: "Station X",
-      destination: "Station Y",
-      departureTime: "14:00",
-      arrivalTime: "18:30",
-      duration: "4h 30m",
-      classes: ["AC", "General"],
-    },
-  ];
-
-  const filteredTrains = mockTrains.filter(
-    (t) =>
-      t.source.toLowerCase() === search.source?.toLowerCase() &&
-      t.destination.toLowerCase() === search.destination?.toLowerCase()
-  );
+  useEffect(() => {
+    setLoading(true);
+    getTrainsByRoute(search.source, search.destination).then((data) => {
+      setTrains(data);
+      setLoading(false);
+    });
+  }, [search.source, search.destination]);
 
   return (
     <div className="p-6">
@@ -44,7 +27,9 @@ export default function TrainSearchBySource() {
         </Link>
       </div>
 
-      {filteredTrains.length === 0 ? (
+      {loading ? (
+        <p>Loading trains...</p>
+      ) : trains.length === 0 ? (
         <p className="text-error">No trains found for this route.</p>
       ) : (
         <div className="overflow-x-auto">
@@ -63,7 +48,7 @@ export default function TrainSearchBySource() {
               </tr>
             </thead>
             <tbody>
-              {filteredTrains.map((train) => (
+              {trains.map((train) => (
                 <tr key={train.code}>
                   <td>{train.code}</td>
                   <td>{train.name}</td>
