@@ -28,22 +28,12 @@ const createTrain = asyncErrorHandler(async (req, res, next) => {
     coaches,
   );
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      train: newTrain,
-    },
-  });
+  res.success({ train: newTrain }, { status: 201 });
 });
 
 const getAllTrains = asyncErrorHandler(async (req, res, next) => {
   const trains = await Train.findAll();
-  res.status(200).json({
-    status: "success",
-    data: {
-      trains,
-    },
-  });
+  res.success({ trains });
 });
 
 const getTrainById = asyncErrorHandler(async (req, res, next) => {
@@ -57,12 +47,7 @@ const getTrainById = asyncErrorHandler(async (req, res, next) => {
     throw new AppError(404, "Train not found.");
   }
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      train,
-    },
-  });
+  res.success({ train });
 });
 
 const updateTrain = asyncErrorHandler(async (req, res, next) => {
@@ -95,12 +80,7 @@ const updateTrain = asyncErrorHandler(async (req, res, next) => {
     throw new AppError(404, "Train not found or could not be updated.");
   }
   
-  res.status(200).json({
-    status: "success",
-    data: {
-      train: updatedTrain,
-    },
-  });
+  res.success({ train: updatedTrain });
 });
 
 const deleteTrain = asyncErrorHandler(async (req, res, next) => {
@@ -114,10 +94,7 @@ const deleteTrain = asyncErrorHandler(async (req, res, next) => {
     throw new AppError(404, "Train not found.");
   }
 
-  res.status(200).json({
-    status: "success",
-    message: "Train and associated coaches/seats deleted successfully.",
-  });
+  res.success({ message: "Train and associated coaches/seats deleted successfully." });
 });
 
 
@@ -148,12 +125,7 @@ const configureSeatChart = asyncErrorHandler(async (req, res, next) => {
     throw new AppError(404, "Train not found or seat chart could not be configured.");
   }
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      train: updatedTrain,
-    },
-  });
+  res.success({ train: updatedTrain });
 });
 
 export default {

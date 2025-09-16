@@ -1,50 +1,76 @@
 import SeatTypeModel from "../models/seatTypeModel.js";
+import { asyncErrorHandler } from "../utils/errors.js";
+import { AppError } from "../utils/errors.js";
+import * as z from "zod";
 
-export const createSeatType = async (req, res) => {
-  try {
-    const seatType = await SeatTypeModel.create(req.body);
-    res.status(201).json(seatType);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+const createSeatType = asyncErrorHandler(async (req, res) => {
 
-export const getSeatTypes = async (req, res) => {
-  try {
-    const seatTypes = await SeatTypeModel.find(req.query, req.query);
-    res.json(seatTypes);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+  const schema = z.object({
+    name: z.string().min(2),
+    description: z.string().optional(),
+  });
+  const { name, description } = await schema.parseAsync(req.body);
 
-export const updateSeatType = async (req, res) => {
-  try {
-    const seatType = await SeatTypeModel.update(req.params.id, req.body);
-    if (!seatType) {
-      return res.status(404).json({ error: "Seat type not found" });
-    }
-    res.json(seatType);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+  const seatType = await SeatTypeModel.create(name, description);
+  res.success({ seatType }, { status: 201 });
+});
 
-export const deleteSeatType = async (req, res) => {
-  try {
-    const seatType = await SeatTypeModel.delete(req.params.id);
-    if (!seatType) {
-      return res.status(404).json({ error: "Seat type not found" });
-    }
-    res.json({ message: "Seat type deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+const getSeatTypes = asyncErrorHandler(async (req, res) => {
+  const seatTypes = await SeatTypeModel.find(req.query);
+  if (!seatTypes || seatTypes.length === 0) {
+    throw new AppError(404, "Seat types not found");
   }
-};
+  res.success({ seatTypes });
+});
+
+const getSeatTypeById = asyncErrorHandler(async (req, res) => {
+  const schema = z.object({
+    id: z.string().uuid(),
+  });
+  const { id } = await schema.parseAsync(req.params);
+
+  const seatType = await SeatTypeModel.findById(id);
+  if (!seatType) {
+    throw new AppError(404, "Seat type not found");
+  }
+  res.success({ seatType });
+});
+
+const updateSeatType = asyncErrorHandler(async (req, res) => {
+  const paramSchema = z.object({
+    id: z.string().uuid(),
+  });
+  const bodySchema = z.object({
+    name: z.string().min(2).optional(),
+    description: z.string().optional(),
+  });
+  const { id } = await paramSchema.parseAsync(req.params);
+  const { name, description } = await bodySchema.parseAsync(req.body);
+
+  const seatType = await SeatTypeModel.update(id, { name, description });
+  if (!seatType) {
+    throw new AppError(404, "Seat type not found");
+  }
+  res.success({ seatType });
+});
+
+const deleteSeatType = asyncErrorHandler(async (req, res) => {
+  const schema = z.object({
+    id: z.string().uuid(),
+  });
+  const { id } = await schema.parseAsync(req.params);
+
+  const result = await SeatTypeModel.delete(id);
+  if (!result) {
+    throw new AppError(404, "Seat type not found");
+  }
+  res.success({ message: "Seat type deleted successfully" });
+});
 
 export default {
   createSeatType,
   getSeatTypes,
+  getSeatTypeById, 
   updateSeatType,
   deleteSeatType,
 };

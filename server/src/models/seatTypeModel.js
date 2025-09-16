@@ -34,6 +34,12 @@ class SeatType {
     return result.rows;
   }
   
+    static async findById(id) {
+    const query = `SELECT * FROM ${this.TABLE} WHERE id = $1`;
+    const result = await queryDB(query, [id]);
+    return result.rows[0];
+  }
+  
   static async update(id, name, description) {
     const query = `UPDATE ${this.TABLE} SET name = COALESCE($1, name), description = COALESCE($2, description) WHERE id = $3 RETURNING *`;
     const values = [name, description, id];

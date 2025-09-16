@@ -1,20 +1,12 @@
 import { Router } from "express";
-import {
-  createSeatType,
-  getSeatTypes,
-  updateSeatType,
-  deleteSeatType,
-} from "../controllers/seatTypeController.js";
+import seatTypeController from "../controllers/seatTypeController.js";
 
 const router = Router();
 
-router.post("/", createSeatType);
-router.get("/", getSeatTypes);
-router.put("/:id", updateSeatType);
-router.delete("/:id", deleteSeatType);
-
-router.get("/test", (req, res) => {
-  res.send("seat-types route is working");
-});
+router.post("/", seatTypeController.createSeatType);
+router.get("/", seatTypeController.getSeatTypes);
+router.get("/:id", seatTypeController.getSeatTypeById);
+router.patch("/:id", seatTypeController.updateSeatType);
+router.delete("/:id", seatTypeController.deleteSeatType);
 
 export default router;
