@@ -8,6 +8,7 @@ const userNavItems = [
   { name: "Search Trains", to: "/trains", private: false },
   { name: "My Bookings", to: "/bookings", private: false },
   { name: "Contact Us", to: "/contact", private: false },
+  { name: "Profile", to: "/profile", private: false },
 ];
 
 const adminNavItems = [
