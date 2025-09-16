@@ -1,6 +1,6 @@
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import {TrainSchedule} from "../../../../features/trains/components";
-import { getTrainSchedule } from "../../../../features/trains/services/trainScheduleService";
+import {TrainSchedule} from "../../../../features/user/trains/components";
+import { getTrainSchedule } from "../../../../features/user/trains/services/trainScheduleService";
 
 export const Route = createFileRoute("/(user)/trains/$trainId/schedule")({
   component: RouteComponent,

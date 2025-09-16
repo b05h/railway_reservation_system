@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TrainForm} from "../../../features/trains/components";
+import { TrainForm} from "../../../features/user/trains/components";
 export const Route = createFileRoute("/(user)/trains/")({
   component: RouteComponent,
 });
