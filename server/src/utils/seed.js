@@ -226,21 +226,21 @@ const seedUsers = async () => {
       name: "System Administrator",
       email: "admin@railway.com",
       password_hash:
-        "$2b$10$rOvHdS6KMz8UKEZs5B5zeuHhQ8gK9LsZs1xSs8x6PJMwYqP8z9K1e", // password: admin123
+        "$2a$12$aaAzwXNi593UQjovDY8xsOSAvO.Xq7aFlBt9lpd3Yf2FwgTQTkWlG", // password: admin123
       role_id: adminRole.id,
     },
     {
       name: "John Doe",
       email: "john.doe@example.com",
       password_hash:
-        "$2b$10$rOvHdS6KMz8UKEZs5B5zeuHhQ8gK9LsZs1xSs8x6PJMwYqP8z9K1e", // password: admin123
+        "$2b$10$anVmjcJPR9v.jMwJRUvbx.KxGbfpC5XJuVCezCvc0a006249AlxN6", // password: password
       role_id: customerRole.id,
     },
     {
       name: "Jane Smith",
       email: "jane.smith@example.com",
       password_hash:
-        "$2b$10$rOvHdS6KMz8UKEZs5B5zeuHhQ8gK9LsZs1xSs8x6PJMwYqP8z9K1e", // password: admin123
+        "$2b$10$anVmjcJPR9v.jMwJRUvbx.KxGbfpC5XJuVCezCvc0a006249AlxN6", // password: password
       role_id: customerRole.id,
     },
   ];
@@ -328,7 +328,9 @@ const seedSchedules = async () => {
     ]);
 
     if (existsResult.rows.length > 0) {
-      console.log(`  - Schedule for train already exists for ${schedule.departure_date}`);
+      console.log(
+        `  - Schedule for train already exists for ${schedule.departure_date}`,
+      );
       insertedSchedules.push(existsResult.rows[0]);
       continue;
     }
@@ -418,15 +420,20 @@ const seedScheduleStops = async () => {
     },
   ];
 
-  for (let scheduleIndex = 0; scheduleIndex < Math.min(schedulesResult.rows.length, routeDefinitions.length); scheduleIndex++) {
+  for (
+    let scheduleIndex = 0;
+    scheduleIndex <
+    Math.min(schedulesResult.rows.length, routeDefinitions.length);
+    scheduleIndex++
+  ) {
     const schedule = schedulesResult.rows[scheduleIndex];
     const route = routeDefinitions[scheduleIndex];
 
     for (let stopIndex = 0; stopIndex < route.stations.length; stopIndex++) {
       const stationCode = route.stations[stopIndex];
       const timeInfo = route.times[stopIndex];
-      
-      const station = stationsResult.rows.find(s => s.code === stationCode);
+
+      const station = stationsResult.rows.find((s) => s.code === stationCode);
       if (!station) {
         console.log(`  - Station ${stationCode} not found, skipping`);
         continue;
@@ -441,7 +448,9 @@ const seedScheduleStops = async () => {
       ]);
 
       if (existsResult.rows.length > 0) {
-        console.log(`  - Schedule stop ${stopIndex + 1} for ${station.name} already exists`);
+        console.log(
+          `  - Schedule stop ${stopIndex + 1} for ${station.name} already exists`,
+        );
         continue;
       }
 
@@ -461,10 +470,15 @@ const seedScheduleStops = async () => {
         ]);
 
         if (result.rows.length > 0) {
-          console.log(`  ✓ Inserted schedule stop ${stopIndex + 1} for ${station.name}`);
+          console.log(
+            `  ✓ Inserted schedule stop ${stopIndex + 1} for ${station.name}`,
+          );
         }
       } catch (error) {
-        console.error(`  ✗ Error inserting schedule stop for ${station.name}:`, error.message);
+        console.error(
+          `  ✗ Error inserting schedule stop for ${station.name}:`,
+          error.message,
+        );
       }
     }
   }
@@ -496,4 +510,3 @@ export const seedDatabase = async () => {
 };
 
 export default seedDatabase;
-

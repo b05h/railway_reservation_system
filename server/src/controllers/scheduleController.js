@@ -18,17 +18,15 @@ const schema = z.object({
 });
 
 const get = asyncErrorHandler(async (req, res, next) => {
-  const querySchema = z
-    .object({
-      trainId: z.uuid(),
-      departureDate: z.date(),
-      departureTime: z.time(),
-      limit: z.number(),
-      page: z.number(),
-      sortBy: z.string(),
-      sortOrder: z.string(),
-    })
-    .optional();
+  const querySchema = z.object({
+    trainId: z.uuid().optional(),
+    departureDate: z.date().optional(),
+    departureTime: z.string().optional(),
+    limit: z.number().optional(),
+    page: z.number().optional(),
+    sortBy: z.string().optional(),
+    sortOrder: z.string().optional(),
+  });
   const {
     trainId,
     departureDate,
@@ -38,10 +36,16 @@ const get = asyncErrorHandler(async (req, res, next) => {
     sortBy,
     sortOrder,
   } = await querySchema.parseAsync(req.query);
+
   const schedules = await Schedule.find(
     { trainId, departureDate, departureTime, limit, page },
     { sortBy, sortOrder },
   );
+
+  if (!schedules || schedules.length === 0) {
+    throw new AppError(400, "Could not find schedules");
+  }
+
   res.success(schedules);
 });
 
@@ -50,9 +54,10 @@ const getById = asyncErrorHandler(async (req, res, next) => {
     id: z.uuid(),
   });
   const { id } = await paramSchema.parseAsync(req.params);
-  const schedule = await Schedule.find({ id });
+
+  const schedule = (await Schedule.find({ id }))[0];
   if (!schedule) {
-    throw new AppError("Could not find schedule", 400);
+    throw new AppError(400, "Could not find schedule");
   }
   res.success(schedule);
 });
