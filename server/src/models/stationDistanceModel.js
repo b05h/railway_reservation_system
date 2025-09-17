@@ -17,11 +17,15 @@ class StationDistance {
   }
 
   static async findBetween(from_station_id, to_station_id) {
-    const query = `SELECT * FROM ${this.TABLE} WHERE from_station_id = $1 AND to_station_id = $2`;
-    const values = [from_station_id, to_station_id];
-    const result = await queryDB(query, values);
-    return result.rows[0];
-  }
+  const query = `
+    SELECT * FROM ${this.TABLE}
+    WHERE (from_station_id = $1 AND to_station_id = $2)
+    OR (from_station_id = $2 AND to_station_id = $1)
+  `;
+  const values = [from_station_id, to_station_id];
+  const result = await queryDB(query, values);
+  return result.rows[0];
+}
 
   static async update(id, distance) {
     const query = `UPDATE ${this.TABLE} SET distance = $1, updated_at = NOW() WHERE id = $2 RETURNING *`;
