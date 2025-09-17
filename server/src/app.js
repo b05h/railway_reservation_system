@@ -36,16 +36,14 @@ export default function createApp(config) {
   const api = express.Router();
 
   api.use("/auth", authRoutes);
-  api.use("/admin", authenticate("admin"), trainRoutes);
-  api.use("/admin", authenticate("admin"), stationRoutes);
-  api.use("/admin", authenticate("admin"), stationDistanceRoutes);
+  api.use("/admin/trains", authenticate("admin"), trainRoutes);
+  api.use("/admin/stations", authenticate("admin"), stationRoutes);
+  api.use("/admin/station-distances", authenticate("admin"), stationDistanceRoutes);
   api.use("/admin/audit-log", authenticate("admin"), auditLogRoutes);
   api.use("/admin/coach-types", authenticate("admin"), coachTypeRoutes);
   api.use("/admin/schedules", authenticate("admin"), scheduleRoutes);
   api.use("/admin/seat-types", authenticate("admin"), seatTypeRoutes);
   
-  
-
   api.get("/", (req, res) => {
     res.send("This is the Railway Reservation System API");
   });
