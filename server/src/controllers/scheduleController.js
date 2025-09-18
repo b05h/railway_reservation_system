@@ -4,11 +4,10 @@ import * as z from "zod";
 
 const schema = z.object({
   trainId: z.uuid(),
-  departureDate: z.date(),
+  departureDate: z.coerce.date(),
   departureTime: z.string(),
   scheduleStops: z.array(
     z.object({
-      scheduleId: z.uuid(),
       stationId: z.uuid(),
       stopNumber: z.number(),
       arrivalTime: z.string(),
@@ -19,15 +18,18 @@ const schema = z.object({
 
 const get = asyncErrorHandler(async (req, res, next) => {
   const querySchema = z.object({
+    id: z.uuid().optional(),
     trainId: z.uuid().optional(),
-    departureDate: z.date().optional(),
+    departureDate: z.coerce.date().optional(),
     departureTime: z.string().optional(),
     limit: z.number().optional(),
     page: z.number().optional(),
     sortBy: z.string().optional(),
     sortOrder: z.string().optional(),
   });
+
   const {
+    id,
     trainId,
     departureDate,
     departureTime,
@@ -38,7 +40,7 @@ const get = asyncErrorHandler(async (req, res, next) => {
   } = await querySchema.parseAsync(req.query);
 
   const schedules = await Schedule.find(
-    { trainId, departureDate, departureTime, limit, page },
+    { id, trainId, departureDate, departureTime, limit, page },
     { sortBy, sortOrder },
   );
 
@@ -59,6 +61,7 @@ const getById = asyncErrorHandler(async (req, res, next) => {
   if (!schedule) {
     throw new AppError(400, "Could not find schedule");
   }
+
   res.success(schedule);
 });
 
@@ -73,24 +76,9 @@ const create = asyncErrorHandler(async (req, res, next) => {
   });
 
   if (!schedule) {
-    throw new AppError("Could not create schedule", 400);
+    throw new AppError(400, "Could not create schedule");
   }
 
-  const scheduleStopsResults = await Promise.all(
-    scheduleStops.map(({ stationId, stopNumber, arrivalTime, departureTime }) =>
-      ScheduleStops.create({
-        scheduleId: schedule.id,
-        stationId,
-        stopNumber,
-        arrivalTime,
-        departureTime,
-      }),
-    ),
-  );
-
-  if (!(scheduleStopsResults && scheduleStopsResults.length > 0)) {
-    throw new AppError("Could not create schedule stops", 400);
-  }
   res.success(schedule);
 });
 
@@ -99,7 +87,8 @@ const update = asyncErrorHandler(async (req, res, next) => {
     id: z.uuid(),
   });
   const { id } = await paramSchema.parseAsync(req.params);
-  const updateSchema = schema.optional();
+
+  const updateSchema = schema.partial();
   const { trainId, departureDate, departureTime, scheduleStops } =
     await updateSchema.parseAsync(req.body);
 
@@ -112,27 +101,9 @@ const update = asyncErrorHandler(async (req, res, next) => {
   });
 
   if (!schedule) {
-    throw new AppError("Could not update schedule", 400);
+    throw new AppError(400, "Could not update schedule");
   }
 
-  const scheduleStopsResults = Promise.all(
-    scheduleStops.map(
-      async ({ id, stationId, stopNumber, arrivalTime, departureTime }) => {
-        return await ScheduleStops.update({
-          id,
-          scheduleId: schedule.id,
-          stationId,
-          stopNumber,
-          arrivalTime,
-          departureTime,
-        });
-      },
-    ),
-  );
-
-  if (!(scheduleStopsResults && scheduleStopsResults.length > 0)) {
-    throw new AppError("Could not update schedule stops", 400);
-  }
   res.success(schedule);
 });
 
@@ -143,7 +114,7 @@ const remove = asyncErrorHandler(async (req, res, next) => {
   const { id } = await paramSchema.parseAsync(req.params);
   const schedule = await Schedule.delete(id);
   if (!schedule) {
-    throw new AppError("Could not delete schedule", 400);
+    throw new AppError(400, "Could not delete schedule");
   }
   res.success(schedule);
 });
