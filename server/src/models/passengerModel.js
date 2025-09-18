@@ -64,5 +64,4 @@ class Passenger {
     return rows[0];
   }
 }
-
 export default Passenger;
