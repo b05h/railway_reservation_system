@@ -52,9 +52,24 @@ const deleteDistance = asyncErrorHandler(async (req, res) => {
   if (result.rowCount === 0) throw new AppError(404, "Distance not found");
   res.success({ message: "Distance deleted successfully" });
 });
+
+const getDistanceBetween = asyncErrorHandler(async (req, res) => {
+  const schema = z.object({
+    from: z.string().uuid(),
+    to: z.string().uuid(),
+  });
+
+  const { from, to } = await schema.parseAsync(req.query);
+
+  const path = await StationDistance.findShortestPath(from, to);
+  if (!path) throw new AppError(404, "No route found between the stations");
+
+  res.success({ path });
+});
 export default {
   createDistance,
   getDistances,
   updateDistance,
   deleteDistance,
+  getDistanceBetween,
 };
