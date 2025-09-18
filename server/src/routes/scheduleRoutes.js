@@ -6,7 +6,7 @@ const scheduleRouter = Router();
 scheduleRouter.get("/", scheduleController.get);
 scheduleRouter.get("/:id", scheduleController.getById);
 scheduleRouter.post("/", scheduleController.create);
-scheduleRouter.put("/:id", scheduleController.update);
+scheduleRouter.patch("/:id", scheduleController.update);
 scheduleRouter.delete("/:id", scheduleController.remove);
 
 export default scheduleRouter;
