@@ -3,7 +3,6 @@ import { queryDB } from "../utils/db.js";
 class Booking {
   static TABLE = "bookings";
 
-
   static async create(userId, scheduleId, fromStationId, toStationId, statusId, totalAmount) {
     const query = `
       INSERT INTO ${this.TABLE} 
