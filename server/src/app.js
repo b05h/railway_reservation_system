@@ -50,7 +50,7 @@ export default function createApp(config) {
   api.use("/admin/audit-log", authenticate("admin"), auditLogRoutes);
   api.use("/admin/coach-types", authenticate("admin"), coachTypeRoutes);
   api.use("/admin/schedules", authenticate("admin"), scheduleRoutes);
-  api.use("/admin/seat-types", /*authenticate("admin"),*/ seatTypeRoutes);
+  api.use("/admin/seat-types", authenticate("admin"), seatTypeRoutes);
 
   app.use("/api/v1", api);
 
