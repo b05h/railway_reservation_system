@@ -59,6 +59,7 @@ const updatePassenger = asyncErrorHandler(async (req, res) => {
     passengerId,
     data
   );
+  
   return res.success(
     { passenger: updatedPassenger },
     { message: "Passenger updated successfully" }
