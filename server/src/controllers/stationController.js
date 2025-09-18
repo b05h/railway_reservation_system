@@ -18,14 +18,22 @@ const createStation = asyncErrorHandler(async (req, res, next) => {
 });
 
 const getAllStations = asyncErrorHandler(async (req, res, next) => {
-  const { search = "", city = "" } = req.query;
+  const querySchema = z.object({
+    search: z.string().optional(),
+    city: z.string().optional(),
+  });
+
+  const { search, city } = await querySchema.parseAsync(req.query);
   const stations = await Station.findAll({ search, city });
+  if (!stations) {
+    throw new AppError(404, "Station not found");
+  }
   res.success({ stations });
 });
 
 const getStationById = asyncErrorHandler(async (req, res, next) => {
   const schema = z.object({
-    stationId: z.string().uuid(),
+    stationId: z.uuid(),
   });
   const { stationId } = await schema.parseAsync(req.params);
 
@@ -37,12 +45,11 @@ const getStationById = asyncErrorHandler(async (req, res, next) => {
   res.success({ station });
 });
 
-
 const updateStation = asyncErrorHandler(async (req, res, next) => {
   const paramSchema = z.object({
-    stationId: z.string().uuid(),
+    stationId: z.uuid(),
   });
-  
+
   const bodySchema = z.object({
     name: z.string().min(2).max(100).optional(),
     code: z.string().min(1).max(20).optional(),
@@ -52,7 +59,7 @@ const updateStation = asyncErrorHandler(async (req, res, next) => {
   const { stationId } = await paramSchema.parseAsync(req.params);
   const updateData = await bodySchema.parseAsync(req.body);
 
-  const station = await Station.update(stationId, updateData); 
+  const station = await Station.update(stationId, updateData);
   if (!station) {
     throw new AppError(404, "Station not found");
   }
@@ -62,7 +69,7 @@ const updateStation = asyncErrorHandler(async (req, res, next) => {
 
 const deleteStation = asyncErrorHandler(async (req, res, next) => {
   const schema = z.object({
-    stationId: z.string().uuid(),
+    stationId: z.uuid(),
   });
   const { stationId } = await schema.parseAsync(req.params);
 
@@ -71,7 +78,7 @@ const deleteStation = asyncErrorHandler(async (req, res, next) => {
     throw new AppError(404, "Station not found");
   }
 
-  res.success({ message: "Station deleted successfully" });
+  res.success({ station }, { message: "Station deleted successfully" });
 });
 
 export default {

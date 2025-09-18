@@ -19,8 +19,8 @@ export const queryDB = async (query, params) => {
   return result;
 };
 
-export const getDBClient = () => {
-  const client = pool.connect();
+export const getDBClient = async () => {
+  const client = await pool.connect();
   const query = client.query;
   const release = client.release;
 
@@ -47,3 +47,4 @@ export const getDBClient = () => {
 };
 
 export { pool };
+
