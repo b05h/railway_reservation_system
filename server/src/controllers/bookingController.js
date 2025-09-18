@@ -75,6 +75,7 @@ const cancelBooking = asyncErrorHandler(async (req, res) => {
   return res.success({ booking: updated });
 });
 
+
 export default {
   getAllBookings,
   getBookingById,
