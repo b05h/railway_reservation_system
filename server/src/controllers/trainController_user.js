@@ -45,4 +45,5 @@ const getAvailability = asyncErrorHandler(async (req, res) => {
   return res.success({ trainId, date, availability });
 });
 
+
 export default { searchTrains, getSchedule, getAvailability };
