@@ -4,7 +4,6 @@ import { profileController } from "../controllers/index.js";;
 
 const router = express.Router();
 
-
 // ------------------- Profile Routes -------------------
 
 router.get("/", authenticate("customer"), profileController.getProfile);
