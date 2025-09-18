@@ -5,6 +5,8 @@ export default function errorHandler(err, req, res, next) {
     return next(err);
   }
 
+  console.error(err);
+
   const error = {
     type: err.type || "about:blank",
     title: err.title || err.message,

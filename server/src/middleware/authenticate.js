@@ -22,10 +22,13 @@ const authenticate =
     }
 
     // verify token
-    const userId = verifyToken(token).id;
-    if (!userId) {
+    const verifiedToken = verifyToken(token);
+    if (!verifiedToken) {
       throw new AppError(401, "Invalid token");
     }
+
+    // extract user id from token
+    const { id: userId } = verifiedToken;
 
     // retrieve user's role
     const query =

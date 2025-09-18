@@ -10,7 +10,7 @@ class SeatType {
     return result.rows[0];
   }
 
-  static async find(filter = {}) {
+  static async find(filter = {}, sort = {}) {
     let query = `SELECT * FROM ${this.TABLE}`;
     const values = [];
     const conditions = [];
@@ -23,24 +23,38 @@ class SeatType {
       conditions.push(`name = $${values.length + 1}`);
       values.push(filter.name);
     }
+    if (filter.description) {
+      conditions.push(`description LIKE $${values.length + 1}`);
+      values.push(`%${filter.description}%`);
+    }
 
     if (conditions.length > 0) {
       query += ` WHERE ${conditions.join(" AND ")}`;
     }
-    
-    query += ` ORDER BY name ASC`; 
+
+    if (sort) {
+      const sortableFields = ["name", "description"];
+      const sortOrders = ["ASC", "DESC"];
+      const sortBy = sortableFields.includes(sort.sortBy)
+        ? sort.sortBy
+        : "name";
+      const sortOrder = sortOrders.includes(sort.sortOrder)
+        ? sort.sortOrder
+        : "ASC";
+      query += ` ORDER BY ${sortBy} ${sortOrder}`;
+    }
 
     const result = await queryDB(query, values);
     return result.rows;
   }
-  
-    static async findById(id) {
+
+  static async findById(id) {
     const query = `SELECT * FROM ${this.TABLE} WHERE id = $1`;
     const result = await queryDB(query, [id]);
     return result.rows[0];
   }
-  
-  static async update(id, name, description) {
+
+  static async update(id, { name, description }) {
     const query = `UPDATE ${this.TABLE} SET name = COALESCE($1, name), description = COALESCE($2, description) WHERE id = $3 RETURNING *`;
     const values = [name, description, id];
     const result = await queryDB(query, values);
@@ -56,3 +70,4 @@ class SeatType {
 }
 
 export default SeatType;
+

@@ -11,23 +11,23 @@ class ScheduleStopsModel {
         conditions.push(`id = $${values.length + 1}`);
         values.push(filter.id);
       }
-      if (filter.schedule_id) {
+      if (filter.scheduleId) {
         conditions.push(`schedule_id = $${values.length + 1}`);
         values.push(filter.scheduleId);
       }
-      if (filter.station_id) {
+      if (filter.stationId) {
         conditions.push(`station_id = $${values.length + 1}`);
         values.push(filter.stationId);
       }
-      if (filter.stop_number) {
+      if (filter.stopNumber) {
         conditions.push(`stop_number = $${values.length + 1}`);
         values.push(filter.stopNumber);
       }
-      if (filter.arrival_time) {
+      if (filter.arrivalTime) {
         conditions.push(`arrival_time = $${values.length + 1}`);
         values.push(filter.arrivalTime);
       }
-      if (filter.departure_time) {
+      if (filter.departureTime) {
         conditions.push(`departure_time = $${values.length + 1}`);
         values.push(filter.departureTime);
       }
