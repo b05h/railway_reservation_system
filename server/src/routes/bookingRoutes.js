@@ -1,10 +1,7 @@
 import express from "express";
-import authenticate from "../middleware/authenticate.js";
-import bookingController from "../controllers/bookingController.js";
+import { bookingController } from "../controllers/index.js";
 
 const router = express.Router();
-
-router.use(authenticate);
 
 router.get("/", bookingController.getAllBookings);
 router.get("/:bookingId", bookingController.getBookingById);

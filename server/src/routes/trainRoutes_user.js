@@ -1,14 +1,10 @@
 import express from "express";
-import {
-  searchTrains,
-  getSchedule,
-  getAvailability,
-} from "../controllers/trainController_user.js";
+import { trainControllerUser } from "../controllers/index.js";
 
 const router = express.Router();
 
-router.get("/search", searchTrains);
-router.get("/:trainId/schedule", getSchedule);
-router.get("/:trainId/availability", getAvailability);
+router.get("/search", trainControllerUser.searchTrains);
+router.get("/:trainId/schedule", trainControllerUser.getSchedule);
+router.get("/:trainId/availability", trainControllerUser.getAvailability);
 
 export default router;

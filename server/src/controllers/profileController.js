@@ -1,85 +1,92 @@
 import { z } from "zod";
-import * as profileModel from "../models/profileModel.js";
-import * as passengerModel from "../models/passengerModel.js";
+import { Profile, Passenger } from "../models/index.js";
+import { asyncErrorHandler, AppError } from "../utils/errors.js";
 
 const updateProfileSchema = z.object({
   name: z.string().optional(),
-  email: z.email().optional(),
+  email: z.string().email().optional(),
 });
-
 
 const createPassengerSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  email: z.email().min(1, "Email is required"),
+  email: z.string().email("Invalid email").min(1, "Email is required"),
   age: z.number().min(0, "Age must be valid"),
 });
 
 const updatePassengerSchema = z.object({
   name: z.string().optional(),
-  email: z.email().optional(),
+  email: z.string().email().optional(),
   age: z.number().min(0).optional(),
 });
 
 const passengerIdSchema = z.object({
-  passengerId: z.string().min(1, "passengerId is required"),
+  passengerId: z.string().uuid("Invalid passengerId"),
 });
 
+const getProfile = asyncErrorHandler(async (req, res) => {
+  const profile = await Profile.getProfile(req.userId);
+  return res.success({ profile });
+});
 
-export async function getProfile(req, res, next) {
-  try {
-    const profile = await profileModel.getProfile(req.userId.id);
-    return res.success({ profile });
-  } catch (err) {
-    next(err);
-  }
-}
+const updateProfile = asyncErrorHandler(async (req, res) => {
+  const data = updateProfileSchema.parse(req.body);
+  const updatedProfile = await Profile.updateProfile(req.userId, data);
+  return res.success(
+    { profile: updatedProfile },
+    { message: "Profile updated successfully" }
+  );
+});
 
-export async function updateProfile(req, res, next) {
-  try {
-    const data = updateProfileSchema.parse(req.body);
-    const updatedProfile = await profileModel.updateProfile(req.userId.id, data);
-    return res.success({ profile: updatedProfile }, { message: "Profile updated successfully" });
-  } catch (err) {
-    next(err);
-  }
-}
+const listPassengers = asyncErrorHandler(async (req, res) => {
+  const passengers = await Passenger.listPassengers(req.userId);
+  return res.success({ passengers }, { count: passengers.length });
+});
 
+const addPassenger = asyncErrorHandler(async (req, res) => {
+  const data = createPassengerSchema.parse(req.body);
+  const passenger = await Passenger.addPassenger(req.userId, data);
+  return res.success(
+    { passenger },
+    { message: "Passenger added successfully" }
+  );
+});
 
-export async function listPassengers(req, res, next) {
-  try {
-    const passengers = await passengerModel.listPassengers(req.userId.id);
-    return res.success({ passengers }, { count: passengers.length });
-  } catch (err) {
-    next(err);
-  }
-}
+const updatePassenger = asyncErrorHandler(async (req, res) => {
+  const { passengerId } = passengerIdSchema.parse(req.params);
+  const data = updatePassengerSchema.parse(req.body);
+  const updatedPassenger = await Passenger.updatePassenger(
+    req.userId,
+    passengerId,
+    data
+  );
+  return res.success(
+    { passenger: updatedPassenger },
+    { message: "Passenger updated successfully" }
+  );
+});
 
-export async function addPassenger(req, res, next) {
-  try {
-    const data = createPassengerSchema.parse(req.body);
-    const passenger = await passengerModel.addPassenger(req.userId.id, data);
-    return res.success({ passenger }, { message: "Passenger added successfully" });
-  } catch (err) {
-    next(err);
-  }
-}
+const deletePassenger = asyncErrorHandler(async (req, res) => {
+  const { passengerId } = passengerIdSchema.parse(req.params);
+  const deletedPassenger = await Passenger.deletePassenger(
+    req.userId,
+    passengerId
+  );
 
-export async function updatePassenger(req, res, next) {
-  try {
-    const { passengerId } = passengerIdSchema.parse(req.params);
-    const data = updatePassengerSchema.parse(req.body);
-    const updatedPassenger = await passengerModel.updatePassenger(req.userId.id, passengerId, data);
-    return res.success({ passenger: updatedPassenger }, { message: "Passenger updated successfully" });
-  } catch (err) {
-    next(err);
+  if (!deletedPassenger) {
+    throw new AppError(404, "Passenger not found");
   }
-}
-export async function deletePassenger(req, res, next) {
-  try {
-    const { passengerId } = passengerIdSchema.parse(req.params);
-    await passengerModel.deletePassenger(req.userId.id, passengerId);
-    return res.success({}, { message: "Passenger deleted successfully" });
-  } catch (err) {
-    next(err);
-  }
-}
+
+  return res.success(
+    { passenger: deletedPassenger },
+    { message: "Passenger deleted successfully" }
+  );
+});
+
+export default {
+  getProfile,
+  updateProfile,
+  listPassengers,
+  addPassenger,
+  updatePassenger,
+  deletePassenger,
+};

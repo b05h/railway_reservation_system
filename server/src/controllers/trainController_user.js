@@ -1,5 +1,6 @@
 import { z } from "zod";
-import * as trainModel from "../models/trainModel_user.js";
+import { Train } from "../models/index.js";
+import { asyncErrorHandler } from "../utils/errors.js";
 
 const searchSchema = z.object({
   from: z.string().min(1, "from is required"),
@@ -17,41 +18,31 @@ const availabilitySchema = z.object({
   date: z.string().min(1, "date is required"),
 });
 
-export async function searchTrains(req, res, next) {
-  try {
-    const { from, to, class: coachClass, date } = searchSchema.parse(req.query);
-    const trains = await trainModel.searchTrains(from, to, coachClass, date);
+const searchTrains = asyncErrorHandler(async (req, res) => {
+  const { from, to, class: coachClass, date } = searchSchema.parse(req.query);
+  const trains = await Train.searchTrains(from, to, coachClass, date);
 
-    return res.success(
-      { from, to, coachClass, date, trains },
-      { count: trains.length }
-    );
-  } catch (err) {
-    next(err);
-  }
-}
+  return res.success(
+    { from, to, coachClass, date, trains },
+    { count: trains.length }
+  );
+});
 
-export async function getSchedule(req, res, next) {
-  try {
-    const { trainId } = scheduleSchema.parse(req.params);
-    const schedule = await trainModel.getSchedule(trainId);
+const getSchedule = asyncErrorHandler(async (req, res) => {
+  const { trainId } = scheduleSchema.parse(req.params);
+  const schedule = await Train.getSchedule(trainId);
 
-    return res.success({ trainId, schedule });
-  } catch (err) {
-    next(err);
-  }
-}
+  return res.success({ trainId, schedule });
+});
 
-export async function getAvailability(req, res, next) {
-  try {
-    const { trainId, date } = availabilitySchema.parse({
-      trainId: req.params.trainId,
-      date: req.query.date,
-    });
+const getAvailability = asyncErrorHandler(async (req, res) => {
+  const { trainId, date } = availabilitySchema.parse({
+    trainId: req.params.trainId,
+    date: req.query.date,
+  });
 
-    const availability = await trainModel.getAvailability(trainId, date);
-    return res.success({ trainId, date, availability });
-  } catch (err) {
-    next(err);
-  }
-}
+  const availability = await Train.getAvailability(trainId, date);
+  return res.success({ trainId, date, availability });
+});
+
+export default { searchTrains, getSchedule, getAvailability };

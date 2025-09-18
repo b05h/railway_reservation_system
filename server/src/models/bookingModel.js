@@ -29,12 +29,6 @@ class Booking {
     return result.rows;
   }
 
-  static async findByIdAndUser(bookingId, userId) {
-    const query = `SELECT * FROM ${this.TABLE} WHERE id = $1 AND user_id = $2`;
-    const { rows } = await queryDB(query, [bookingId, userId]);
-    return rows[0];
-  }
-
   static async updateStatus(id, statusId) {
     const query = `UPDATE ${this.TABLE} SET status_id = $1, updated_at = NOW() WHERE id = $2 RETURNING *`;
     const result = await queryDB(query, [statusId, id]);

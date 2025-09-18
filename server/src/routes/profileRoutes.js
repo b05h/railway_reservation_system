@@ -1,24 +1,24 @@
 import express from "express";
 import authenticate from "../middleware/authenticate.js";
-import * as profileController from "../controllers/profileController.js";
+import { profileController } from "../controllers/index.js";;
 
 const router = express.Router();
 
 
 // ------------------- Profile Routes -------------------
 
-router.get("/profile", authenticate, profileController.getProfile);
+router.get("/", authenticate("customer"), profileController.getProfile);
 
-router.patch("/profile", authenticate, profileController.updateProfile);
+router.patch("/update", authenticate("customer"), profileController.updateProfile);
 
 // ------------------- Passenger Routes -------------------
 
-router.get("/passengers", authenticate, profileController.listPassengers);
+router.get("/passengers", authenticate("customer"), profileController.listPassengers);
 
-router.post("/passengers", authenticate, profileController.addPassenger);
+router.post("/passengers", authenticate("customer"), profileController.addPassenger);
 
-router.patch("/passengers/:passengerId", authenticate, profileController.updatePassenger);
+router.patch("/passengers/:passengerId", authenticate("customer"), profileController.updatePassenger);
 
-router.delete("/passengers/:passengerId", authenticate, profileController.deletePassenger);
+router.delete("/passengers/:passengerId", authenticate("customer"), profileController.deletePassenger);
 
 export default router;
