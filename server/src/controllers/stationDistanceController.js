@@ -8,8 +8,14 @@ const createDistance = asyncErrorHandler(async (req, res) => {
     to_station_id: z.string().uuid(),
     distance: z.number().positive(),
   });
-  const { from_station_id, to_station_id, distance } = await schema.parseAsync(req.body);
-  const newDistance = await StationDistance.create(from_station_id, to_station_id, distance);
+  const { from_station_id, to_station_id, distance } = await schema.parseAsync(
+    req.body,
+  );
+  const newDistance = await StationDistance.create(
+    from_station_id,
+    to_station_id,
+    distance,
+  );
   res.success({ distance: newDistance }, { status: 201 });
 });
 
@@ -18,8 +24,8 @@ const getDistances = asyncErrorHandler(async (req, res) => {
   let distances;
   if (from && to) {
     const schema = z.object({
-      from: z.string().uuid(),
-      to: z.string().uuid(),
+      from: z.uuid(),
+      to: z.uuid(),
     });
     const { from: fromId, to: toId } = await schema.parseAsync(req.query);
     distances = await StationDistance.findBetween(fromId, toId);
@@ -31,7 +37,7 @@ const getDistances = asyncErrorHandler(async (req, res) => {
 
 const updateDistance = asyncErrorHandler(async (req, res) => {
   const paramSchema = z.object({
-    id: z.string().uuid(),
+    id: z.uuid(),
   });
   const bodySchema = z.object({
     distance: z.number().positive(),
@@ -45,7 +51,7 @@ const updateDistance = asyncErrorHandler(async (req, res) => {
 
 const deleteDistance = asyncErrorHandler(async (req, res) => {
   const paramSchema = z.object({
-    id: z.string().uuid(),
+    id: z.uuid(),
   });
   const { id } = await paramSchema.parseAsync(req.params);
   const result = await StationDistance.delete(id);
@@ -55,8 +61,8 @@ const deleteDistance = asyncErrorHandler(async (req, res) => {
 
 const getDistanceBetween = asyncErrorHandler(async (req, res) => {
   const schema = z.object({
-    from: z.string().uuid(),
-    to: z.string().uuid(),
+    from: z.uuid(),
+    to: z.uuid(),
   });
 
   const { from, to } = await schema.parseAsync(req.query);
@@ -73,3 +79,4 @@ export default {
   deleteDistance,
   getDistanceBetween,
 };
+
