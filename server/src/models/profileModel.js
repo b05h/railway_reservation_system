@@ -40,5 +40,4 @@ class Profile {
     return rows[0];
   }
 }
-
 export default Profile;
