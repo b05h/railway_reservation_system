@@ -40,6 +40,40 @@ class StationDistance {
     const result = await queryDB(query, values);
     return result;
   }
+
+  static async findShortestPath(fromStationId, toStationId) {
+    const query = `
+      WITH RECURSIVE paths AS (
+        SELECT 
+          from_station_id,
+          to_station_id,
+          distance,
+          ARRAY[from_station_id, to_station_id] AS path
+        FROM station_distances
+        WHERE from_station_id = $1
+
+        UNION ALL
+
+        SELECT 
+          p.from_station_id,
+          t.to_station_id,
+          p.distance + t.distance AS distance,
+          path || t.to_station_id
+        FROM paths p
+        JOIN station_distances t
+          ON p.to_station_id = t.from_station_id
+        WHERE NOT t.to_station_id = ANY(path) -- avoid cycles
+      )
+      SELECT * 
+      FROM paths
+      WHERE to_station_id = $2
+      ORDER BY distance
+      LIMIT 1;
+    `;
+    const result = await queryDB(query, [fromStationId, toStationId]);
+    return result.rows[0]; 
+  }
+
 }
 
 export default StationDistance;
