@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router';
-import BookingList from '../../../features/bookings/components/BookingList';
+import {BookingList} from '../../../features/user/bookings/components';
 // The key change: export a 'Route' piece
 export const Route = createFileRoute('/(user)/bookings/')({
   component: UserBookingsPage,
