@@ -57,7 +57,7 @@ export default function BookingList({ userId }) {
             </div>
             <div className="card-actions justify-end mt-4">
             <Link
-              to="/(user)/bookings/$bookingId/details"
+              to="/bookings/$bookingId/details"
               params={{ bookingId: booking.bookingId }}
               className="btn btn-primary btn-sm"
             >

@@ -3,7 +3,7 @@ import { useParams, Link } from "@tanstack/react-router";
 import { getBookingById } from "../services/bookingService";
 
 export default function BookingDetails() {
-  const { bookingId } = useParams({ from: "/user/bookings/$bookingId/details" });
+  const { bookingId } = useParams({ from: "/(user)/bookings/$bookingId/details" });
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -70,7 +70,7 @@ export default function BookingDetails() {
           </div>
 
           <div className="card-actions justify-end mt-6">
-            <Link to="/user/bookings" className="btn btn-outline">Back to All Bookings</Link>
+            <Link to="/bookings" className="btn btn-outline">Back to All Bookings</Link>
           </div>
         </div>
       </div>

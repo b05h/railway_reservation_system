@@ -12,8 +12,8 @@ const userNavItems = [
 ];
 
 const adminNavItems = [
-  { name: "Search Trains", to: "/admin/trains", private: false },
-  { name: "Search Stations", to: "/admin/stations", private: false },
+  { name: "Trains", to: "/admin/trains", private: false },
+  { name: "Stations", to: "/admin/stations", private: false },
   { name: "Revenue", to: "/admin/revenue", private: false },
   { name: "Logs", to: "/admin/logs", private: false },
 ];
