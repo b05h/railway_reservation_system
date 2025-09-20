@@ -1,43 +1,37 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { getBookingsByUserId } from "../services/bookingService";
+import { useGetBookingsByUserId } from "../services/bookingService";
 
 export default function BookingList({ userId }) {
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // 🔹 Use the custom hook
+  const { resolve: loadBookings, data: bookings = [], isLoading, isError } =
+    useGetBookingsByUserId(userId);
 
   // 🔹 Filters
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    setLoading(true);
-    getBookingsByUserId(userId).then((data) => {
-      setBookings(data);
-      setLoading(false);
-    });
+  // 🔹 Load bookings when component mounts or userId changes
+  useState(() => {
+    loadBookings();
   }, [userId]);
 
   // 🔹 Filtering logic
   const filteredBookings = bookings.filter((b) => {
     let matches = true;
 
-    // Status filter
-    if (statusFilter !== "all" && b.status !== statusFilter) {
+    if (statusFilter !== "all" && b.status.toLowerCase() !== statusFilter.toLowerCase()) {
       matches = false;
     }
 
-    // Date filter
     if (dateFilter && b.departureDate !== dateFilter) {
       matches = false;
     }
 
-    // Search filter (case-insensitive, partial match)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      const combined =
-        `${b.pnr} ${b.source} ${b.destination}`.toLowerCase();
+      const combined = `${b.pnr} ${b.source} ${b.destination}`.toLowerCase();
       if (!combined.includes(term)) {
         matches = false;
       }
@@ -46,11 +40,21 @@ export default function BookingList({ userId }) {
     return matches;
   });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="text-center p-8">
         <span className="loading loading-spinner loading-lg"></span>
         <p className="mt-2">Fetching your bookings...</p>
+      </div>
+    );
+  }
+
+  if (isError && bookings.length === 0) {
+    return (
+      <div className="text-center p-8">
+        <p className="text-red-500 font-semibold">
+          Failed to fetch bookings. Showing fallback/demo data.
+        </p>
       </div>
     );
   }
@@ -102,10 +106,7 @@ export default function BookingList({ userId }) {
       ) : (
         <div className="space-y-4">
           {filteredBookings.map((booking) => (
-            <div
-              key={booking.bookingId}
-              className="card bg-base-100 shadow-xl"
-            >
+            <div key={booking.bookingId} className="card bg-base-100 shadow-xl">
               <div className="card-body">
                 <h3 className="card-title text-xl">
                   {booking.train.name} ({booking.train.code})
@@ -113,20 +114,25 @@ export default function BookingList({ userId }) {
                 <p className="text-sm text-gray-500">PNR: {booking.pnr}</p>
                 <div className="grid grid-cols-2 gap-4">
                   <p>
-                    <span className="font-semibold">From:</span>{" "}
-                    {booking.source}
+                    <span className="font-semibold">From:</span> {booking.source}
                   </p>
                   <p>
-                    <span className="font-semibold">To:</span>{" "}
-                    {booking.destination}
+                    <span className="font-semibold">To:</span> {booking.destination}
                   </p>
                   <p>
-                    <span className="font-semibold">Date:</span>{" "}
-                    {booking.departureDate}
+                    <span className="font-semibold">Date:</span> {booking.departureDate}
                   </p>
                   <p>
                     <span className="font-semibold">Status:</span>{" "}
-                    <span className="badge badge-success">
+                    <span
+                      className={`badge ${
+                        booking.status.toLowerCase() === "confirmed"
+                          ? "badge-success"
+                          : booking.status.toLowerCase() === "pending"
+                          ? "badge-warning"
+                          : "badge-error"
+                      }`}
+                    >
                       {booking.status}
                     </span>
                   </p>
