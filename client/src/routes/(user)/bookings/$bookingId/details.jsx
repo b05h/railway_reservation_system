@@ -1,9 +1,12 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router';
+import {BookingDetails} from '../../../../features/user/bookings/components';
 
+// The key change: explicitly define the full, nested path.
+// This tells the router exactly where to find this component.
 export const Route = createFileRoute('/(user)/bookings/$bookingId/details')({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  return <div>Hello "/(user)/bookings/$bookingId/details"!</div>
+  return <div><BookingDetails/></div>
 }

@@ -1,14 +1,13 @@
-import { useParams, Link } from "@tanstack/react-router";
+import { useParams, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getTrainById, bookTrain } from "../services/trainBookService";
+import { getTrainById } from "../services/trainBookService";
 
 export default function TrainBookNew() {
   const { trainId } = useParams({ from: "/(user)/trains/$trainId/book/new" });
   const [train, setTrain] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCoach, setSelectedCoach] = useState(null);
-  const [booking, setBooking] = useState(null);
-  const [processing, setProcessing] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -17,18 +16,6 @@ export default function TrainBookNew() {
       setLoading(false);
     });
   }, [trainId]);
-
-  const handleBooking = async () => {
-    if (!selectedCoach) return;
-    setProcessing(true);
-    const result = await bookTrain({
-      trainId: train.code,
-      coachType: selectedCoach.type,
-      passengerName: "Demo Passenger", // later replace with form input
-    });
-    setBooking(result);
-    setProcessing(false);
-  };
 
   if (loading) {
     return (
@@ -68,64 +55,54 @@ export default function TrainBookNew() {
           </div>
 
           {/* Coach Selection */}
-          {!booking && (
-            <>
-              <div className="mt-6">
-                <label className="font-semibold block mb-2">Select Coach Type:</label>
-                <select
-                  className="select select-bordered w-full"
-                  value={selectedCoach?.type || ""}
-                  onChange={(e) => {
-                    const coach = train.classes.find((c) => c.type === e.target.value);
-                    setSelectedCoach(coach);
-                  }}
-                >
-                  <option value="">-- Select Coach --</option>
-                  {train.classes.map((cls) => (
-                    <option key={cls.type} value={cls.type}>
-                      {cls.type} (₹{cls.fare})
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="mt-6">
+            <label className="font-semibold block mb-2">Select Coach Type:</label>
+            <select
+              className="select select-bordered w-full"
+              value={selectedCoach?.type || ""}
+              onChange={(e) => {
+                const coach = train.classes.find((c) => c.type === e.target.value);
+                setSelectedCoach(coach);
+              }}
+            >
+              <option value="">-- Select Coach --</option>
+              {train.classes.map((cls) => (
+                <option key={cls.type} value={cls.type}>
+                  {cls.type} (₹{cls.fare})
+                </option>
+              ))}
+            </select>
+          </div>
 
-              {/* Fare Display */}
-              {selectedCoach && (
-                <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-                  <p className="text-lg">
-                    <span className="font-semibold">Selected Coach:</span> {selectedCoach.type}
-                  </p>
-                  <p className="text-lg">
-                    <span className="font-semibold">Fare:</span> ₹{selectedCoach.fare}
-                  </p>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="card-actions justify-end mt-6">
-                <Link to="/trains" className="btn btn-outline">Back</Link>
-                <button
-                  disabled={!selectedCoach || processing}
-                  className="btn btn-primary"
-                  onClick={handleBooking}
-                >
-                  {processing ? "Booking..." : "Confirm Booking"}
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Booking Confirmation */}
-          {booking && (
-            <div className="mt-6 p-4 bg-green-100 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Booking Confirmed ✅</h3>
-              <p><span className="font-semibold">PNR:</span> {booking.pnr}</p>
-              <p><span className="font-semibold">Passenger:</span> {booking.passenger}</p>
-              <p><span className="font-semibold">Coach:</span> {booking.coachType}</p>
-              <p><span className="font-semibold">Fare:</span> ₹{booking.fare}</p>
-              <p><span className="font-semibold">Status:</span> {booking.status}</p>
+          {/* Fare Display */}
+          {selectedCoach && (
+            <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+              <p className="text-lg">
+                <span className="font-semibold">Selected Coach:</span> {selectedCoach.type}
+              </p>
+              <p className="text-lg">
+                <span className="font-semibold">Fare:</span> ₹{selectedCoach.fare}
+              </p>
             </div>
           )}
+
+          {/* Actions */}
+          <div className="card-actions justify-end mt-6">
+            <Link to="/trains" className="btn btn-outline">Back</Link>
+            <button
+              disabled={!selectedCoach}
+              className="btn btn-primary ml-4"
+              onClick={() => {
+                navigate({
+                  to: "/trains/$trainId/book/passengers",
+                  params: { trainId: train.code },
+                  search: { coachType: selectedCoach.type },
+                });
+              }}
+            >
+              Add Passenger Details
+            </button>
+          </div>
         </div>
       </div>
     </div>
